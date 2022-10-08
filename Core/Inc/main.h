@@ -33,7 +33,7 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "Application2.h"
+#include "../../Application/app_main.h"
 #include "simpleTimer.h"
 /* USER CODE END Includes */
 

@@ -1,10 +1,10 @@
 /**
   ******************************************************************************
-  * @file    ringBuffer.h
+  * @file    app_main.h
   * @author  Søren Pørksen
   * @version V1.0.0
   * @date    08/10-2022 (DD/MM-YYYY)
-  * @brief   Header for ringBuffer.c file.
+  * @brief   Header for app_main.c file.
     TODO: fill this module handles....
   *******************************************************************************
   * @copy
@@ -29,35 +29,20 @@
   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   SOFTWARE.
- */
+  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __RING_BUFFER_H
-#define __RING_BUFFER_H
+#ifndef __APP_MAIN_H
+#define __APP_MAIN_H
 
 /* Includes ------------------------------------------------------------------*/
-#include "common.h"
+#include "stdint.h"
+#include "stdlib.h"
+#include "main.h"
+#include "stm32wbxx_hal.h"
 
 /* Exported types ------------------------------------------------------------*/
-typedef enum
-{
-  RINGBUF_EMPTY = 0,
-  RINGBUF_HAS_ELEMENTS,
-  RINGBUF_FULL
 
-}eRingbufStatus_t;
-
-
-typedef struct
-{
-  uint8_t* au8buffer;
-  uint16_t u16putIndex;
-  uint16_t u16getIndex;
-  uint16_t u16elementsInBuffer;
-  uint16_t u16bufferMaxCapacity;
-  eRingbufStatus_t eRingBufStatus;
-
-}sRingbuf_t;
 /* Exported constants --------------------------------------------------------*/
 
 /* Private define ------------------------------------------------------------*/
@@ -65,11 +50,10 @@ typedef struct
 /* Exported macro ------------------------------------------------------------*/
 
 /* Exported functions --------------------------------------------------------*/
-void ringBuffer_init(sRingbuf_t* pRingBuffer, uint8_t* pu8buffer, uint16_t u16bufferSizeBytes);
-bool_t ringBuffer_put(sRingbuf_t* pRingBuffer, uint8_t u8value);
-uint8_t ringBuffer_get(sRingbuf_t* pRingBuffer);
-uint8_t ringBuffer_peek(sRingbuf_t* pRingBuffer, uint16_t u16index);
-#endif /* __RING_BUFFER_H */
+void app_main_init(void);
+void app_main_idle(void);
+
+#endif /* __APP_MAIN_H */
 
 /******************* (C) COPYRIGHT *****END OF FILE****/
 

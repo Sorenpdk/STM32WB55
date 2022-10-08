@@ -1,5 +1,5 @@
-Application2/Application2.o: ../Application2/Application2.c \
- ../Application2/Application2.h ../Core/Inc/main.h \
+Application/app_main.o: ../Application/app_main.c \
+ ../Application/app_main.h ../Core/Inc/main.h \
  ../Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_hal.h \
  ../Core/Inc/stm32wbxx_hal_conf.h \
  ../Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_hal_dma.h \
@@ -43,12 +43,12 @@ Application2/Application2.o: ../Application2/Application2.c \
  ../Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_hal_uart.h \
  ../Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_hal_uart_ex.h \
  ../Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_ll_system.h \
- ../../STM32WB55/Application2/Application2.h \
+ ../Core/Inc/../../Application/app_main.h \
  ../../STM32WB55/SPLib/Inc/simpleTimer.h \
  ../../STM32WB55/SPLib/Inc/common.h \
  ../../STM32WB55/SPLib/Inc/ringBuffer.h
 
-../Application2/Application2.h:
+../Application/app_main.h:
 
 ../Core/Inc/main.h:
 
@@ -138,7 +138,7 @@ Application2/Application2.o: ../Application2/Application2.c \
 
 ../Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_ll_system.h:
 
-../../STM32WB55/Application2/Application2.h:
+../Core/Inc/../../Application/app_main.h:
 
 ../../STM32WB55/SPLib/Inc/simpleTimer.h:
 

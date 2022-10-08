@@ -12,7 +12,7 @@ RM := rm -rf
 -include Drivers/STM32WBxx_HAL_Driver/Src/subdir.mk
 -include Core/Startup/subdir.mk
 -include Core/Src/subdir.mk
--include Application2/subdir.mk
+-include Application/subdir.mk
 -include subdir.mk
 -include objects.mk
 
@@ -42,8 +42,8 @@ STM32WB55.bin \
 all: STM32WB55.elf secondary-outputs
 
 # Tool invocations
-STM32WB55.elf: $(OBJS) $(USER_OBJS) C:\Users\soren\STM32CubeIDE\workspace_1.3.0\STM32WB55\STM32WB55RGVX_FLASH.ld
-	arm-none-eabi-gcc -o "STM32WB55.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\soren\STM32CubeIDE\workspace_1.3.0\STM32WB55\STM32WB55RGVX_FLASH.ld" --specs=nosys.specs -Wl,-Map="STM32WB55.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+STM32WB55.elf: $(OBJS) $(USER_OBJS) C:\Users\soren\Desktop\STM32WB55\STM32WB55RGVX_FLASH.ld
+	arm-none-eabi-gcc -o "STM32WB55.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\soren\Desktop\STM32WB55\STM32WB55RGVX_FLASH.ld" --specs=nosys.specs -Wl,-Map="STM32WB55.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
