@@ -45,9 +45,9 @@
 									<listOptionValue builtIn="false" value="../Drivers/STM32WBxx_HAL_Driver/Inc"/>
 									<listOptionValue builtIn="false" value="../Drivers/STM32WBxx_HAL_Driver/Inc/Legacy"/>
 									<listOptionValue builtIn="false" value="../Drivers/CMSIS/Device/ST/STM32WBxx/Include"/>
-									<listOptionValue builtIn="false" value="../../STM32WB55/Application2"/>
 									<listOptionValue builtIn="false" value="../../STM32WB55/SPLib/Inc"/>
 									<listOptionValue builtIn="false" value="../../STM32WB55/SPLib/Src"/>
+									<listOptionValue builtIn="false" value="../../STM32WB55/Application"/>
 								</option>
 								<inputType id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c.1660557610" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c"/>
 							</tool>
@@ -97,9 +97,9 @@
 									<listOptionValue builtIn="false" value="../Drivers/STM32WBxx_HAL_Driver/Inc"/>
 									<listOptionValue builtIn="false" value="../Drivers/STM32WBxx_HAL_Driver/Inc/Legacy"/>
 									<listOptionValue builtIn="false" value="../Drivers/CMSIS/Device/ST/STM32WBxx/Include"/>
-									<listOptionValue builtIn="false" value="../../STM32WB55/Application2"/>
 									<listOptionValue builtIn="false" value="../../STM32WB55/SPLib/Inc"/>
 									<listOptionValue builtIn="false" value="../../STM32WB55/SPLib/Src"/>
+									<listOptionValue builtIn="false" value="../../STM32WB55/Application"/>
 								</option>
 								<inputType id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c.1648910852" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c"/>
 							</tool>
@@ -138,9 +138,9 @@
 									<listOptionValue builtIn="false" value="../Drivers/STM32WBxx_HAL_Driver/Inc"/>
 									<listOptionValue builtIn="false" value="../Drivers/STM32WBxx_HAL_Driver/Inc/Legacy"/>
 									<listOptionValue builtIn="false" value="../Drivers/CMSIS/Device/ST/STM32WBxx/Include"/>
-									<listOptionValue builtIn="false" value="../../STM32WB55/Application2"/>
 									<listOptionValue builtIn="false" value="../../STM32WB55/SPLib/Inc"/>
 									<listOptionValue builtIn="false" value="../../STM32WB55/SPLib/Src"/>
+									<listOptionValue builtIn="false" value="../../STM32WB55/Application"/>
 								</option>
 								<inputType id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c.1403993463" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c"/>
 							</tool>

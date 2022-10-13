@@ -50,11 +50,11 @@ typedef struct
 void simpleTimer_init(void);
 void simpleTimer_idle(void);
 void simpleTimer_IRQHandler(TIM_HandleTypeDef *htim);
-uint32_t simpleTimer_getSeconds(void);
-uint32_t simpleTimer_getMilliseconds(void);
 void simpleTimer_reset_seconds(sTimer_t* timer, uint16_t u16resetValue);
 void simpleTimer_reset_milliSeconds(sTimer_t* timer, uint16_t u16resetValue);
 bool_t simpleTimer_timeout(sTimer_t* timer);
+uint32_t simpleTimer_getSeconds(void);
+uint32_t simpleTimer_getMilliseconds(void);
 
 #endif /* __SIMPLE_TIMER_H */
 

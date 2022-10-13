@@ -1,2 +1,3 @@
 app_main.c:60:6:app_main_init	8	static
-app_main.c:78:6:app_main_idle	8	static
+app_main.c:91:6:app_main_idle	8	static
+app_main.c:112:13:test	8	static

@@ -31,30 +31,30 @@ static volatile uint32_t u32currentTimeMilliseconds;
 
 void simpleTimer_idle(void)
 {
-	u32currentTimeMilliseconds = simpleTimer_getMilliseconds();
-	u32currentTimeSeconds = simpleTimer_getSeconds();
+  u32currentTimeMilliseconds = simpleTimer_getMilliseconds();
+  u32currentTimeSeconds = simpleTimer_getSeconds();
 }
 
 void simpleTimer_reset_seconds(sTimer_t* timer, uint16_t u16resetValue)
 {
-	if(timer->eTimerStatus != STS_RUNNING )
-	{
-		timer->u32timeOfReset = simpleTimer_getSeconds();
-		timer->u16resetValue = u16resetValue;
-		timer->bIsMillisecondsTimer = false;
-		timer->eTimerStatus = STS_RUNNING;
-	}
+  if(timer->eTimerStatus != STS_RUNNING )
+  {
+    timer->u32timeOfReset = simpleTimer_getSeconds();
+    timer->u16resetValue = u16resetValue;
+    timer->bIsMillisecondsTimer = false;
+    timer->eTimerStatus = STS_RUNNING;
+  }
 }
 
 void simpleTimer_reset_milliSeconds(sTimer_t* timer, uint16_t u16resetValue)
 {
-	if(timer->eTimerStatus != STS_RUNNING )
-	{
-		timer->u32timeOfReset = simpleTimer_getMilliseconds();
-		timer->u16resetValue = u16resetValue;
-		timer->bIsMillisecondsTimer = true;
-		timer->eTimerStatus = STS_RUNNING;
-	}
+  if(timer->eTimerStatus != STS_RUNNING )
+  {
+    timer->u32timeOfReset = simpleTimer_getMilliseconds();
+    timer->u16resetValue = u16resetValue;
+    timer->bIsMillisecondsTimer = true;
+    timer->eTimerStatus = STS_RUNNING;
+  }
 }
 
 
@@ -64,49 +64,51 @@ bool_t simpleTimer_timeout(sTimer_t* timer)
 
   if(timer->bIsMillisecondsTimer)
   {
-	  if( ( (timer->u32timeOfReset + timer->u16resetValue) < u32currentTimeMilliseconds )
-		  && (timer->eTimerStatus == STS_RUNNING) )
-	  {
-		   bTimedOut = true;
-		   timer->eTimerStatus = STS_TIMED_OUT;
-	  }
+    if(    ( (timer->u32timeOfReset + timer->u16resetValue) < u32currentTimeMilliseconds )
+        && (timer->eTimerStatus == STS_RUNNING)                                             )
+    {
+      bTimedOut = true;
+      timer->eTimerStatus = STS_TIMED_OUT;
+    }
   }
   else
   {
-	  if(( (timer->u32timeOfReset + timer->u16resetValue) < u32currentTimeSeconds )
-			  && (timer->eTimerStatus == STS_RUNNING) )
-		{
-		   bTimedOut = true;
-		   timer->eTimerStatus = STS_TIMED_OUT;
-		}
+    if(    ( (timer->u32timeOfReset + timer->u16resetValue) < u32currentTimeSeconds)
+	&& (timer->eTimerStatus == STS_RUNNING)                                       )
+    {
+      bTimedOut = true;
+      timer->eTimerStatus = STS_TIMED_OUT;
+    }
   }
   return bTimedOut;
 }
 
 
 /* Public functions ----------------------------------------------------*/
+
+
 void simpleTimer_IRQHandler(TIM_HandleTypeDef *htim)
 {
-	if(htim->Instance == TIM17)
-	{
-		++u32elapsedTicks;
+  if(htim->Instance == TIM17)
+  {
+    ++u32elapsedTicks;
 
-		if((u32elapsedTicks % 1000) == 0)
-		{
-			++u32elapsedSeconds;
-		}
-	}
+    if((u32elapsedTicks % 1000) == 0)
+    {
+      ++u32elapsedSeconds;
+    }
+  }
 }
 
 
 uint32_t simpleTimer_getSeconds(void)
 {
-	return u32elapsedSeconds;
+  return u32elapsedSeconds;
 }
 
 uint32_t simpleTimer_getMilliseconds(void)
 {
-	return u32elapsedTicks;
+  return u32elapsedTicks;
 }
 /* Private functions ---------------------------------------------------*/
 

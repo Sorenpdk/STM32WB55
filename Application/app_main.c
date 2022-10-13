@@ -40,7 +40,7 @@
 #define BUFFER_SIZE 16
 
 /* Private function prototypes ----------------------------------------*/
-
+static void test(void);
 /* Global variables ---------------------------------------------------*/
 static sTimer_t ledONTimer;
 static sTimer_t ledOFFTimer;
@@ -49,7 +49,7 @@ static uint16_t OFFTime = 100;
 
 static sRingbuf_t ringbuf;
 static uint8_t au8buffer[BUFFER_SIZE];
-
+static UART_HandleTypeDef huart1;
 /*---------------------------------------------------------------------*/
 /**
   * @brief
@@ -62,6 +62,18 @@ void app_main_init(void)
   simpleTimer_reset_milliSeconds(&ledONTimer, ONTime);
   simpleTimer_reset_milliSeconds(&ledOFFTimer, OFFTime);
   ringBuffer_init(&ringbuf, au8buffer, BUFFER_SIZE);
+  huart1.Instance = USART1;
+  huart1.Init.BaudRate = 115200;
+  huart1.Init.WordLength = UART_WORDLENGTH_8B;
+  huart1.Init.StopBits = UART_STOPBITS_1;
+  huart1.Init.Parity = UART_PARITY_NONE;
+  huart1.Init.Mode = UART_MODE_TX_RX;
+  huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart1.Init.OverSampling = UART_OVERSAMPLING_16;
+  huart1.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+  huart1.Init.ClockPrescaler = UART_PRESCALER_DIV1;
+  huart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+  HAL_UART_Init(&huart1);
 }
 
 
@@ -75,7 +87,28 @@ void app_main_init(void)
   */
 static uint8_t u8idx;
 static uint8_t u8dex;
+static char acmsg[] = "Hello from STM32";
 void app_main_idle(void)
+{
+
+  simpleTimer_idle();
+
+   if(simpleTimer_timeout(&ledONTimer))
+   {
+     u8idx++;
+     HAL_UART_Transmit(&huart1,(uint8_t*)acmsg, sizeof(acmsg), HAL_MAX_DELAY);
+     simpleTimer_reset_milliSeconds(&ledONTimer, ONTime);
+   }
+
+}
+
+
+
+/* Public functions ----------------------------------------------------*/
+
+
+/* Private functions ---------------------------------------------------*/
+static void test(void)
 {
   simpleTimer_idle();
 
@@ -83,7 +116,7 @@ void app_main_idle(void)
   {
     HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
     simpleTimer_reset_milliSeconds(&ledOFFTimer, OFFTime);
-    //u8dex = ringBuffer_get(&ringbuf);
+    u8dex = ringBuffer_get(&ringbuf);
   }
 
   if(simpleTimer_timeout(&ledOFFTimer))
@@ -92,12 +125,5 @@ void app_main_idle(void)
     HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
     ringBuffer_put(&ringbuf, u8idx++);
   }
-
 }
-
-/* Public functions ----------------------------------------------------*/
-
-
-/* Private functions ---------------------------------------------------*/
-
 /******************* (C) COPYRIGHT 2022*****END OF FILE****/
