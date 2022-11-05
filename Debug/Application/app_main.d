@@ -46,7 +46,8 @@ Application/app_main.o: ../Application/app_main.c \
  ../Core/Inc/../../Application/app_main.h \
  ../../STM32WB55/SPLib/Inc/simpleTimer.h \
  ../../STM32WB55/SPLib/Inc/common.h \
- ../../STM32WB55/SPLib/Inc/ringBuffer.h
+ ../../STM32WB55/SPLib/Inc/ringBuffer.h \
+ ../../STM32WB55/SPLib/Inc/simpleFSM.h
 
 ../Application/app_main.h:
 
@@ -145,3 +146,5 @@ Application/app_main.o: ../Application/app_main.c \
 ../../STM32WB55/SPLib/Inc/common.h:
 
 ../../STM32WB55/SPLib/Inc/ringBuffer.h:
+
+../../STM32WB55/SPLib/Inc/simpleFSM.h:

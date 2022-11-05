@@ -1,11 +1,11 @@
 /**
   ******************************************************************************
-  * @file    app_main.h
+  * @file    simpleFSM.c
   * @author  Søren Pørksen
   * @version V1.0.0
-  * @date    08/10-2022 (DD/MM-YYYY)
-  * @brief   Header for app_main.c file.
-    TODO: fill this module handles....
+  * @date    05/11-2022 (DD/MM-YYYY)
+  * @brief   Source for simpleFSM.h file.
+   TODO: Fill this module handles.....
   *******************************************************************************
   * @copy
   MIT License
@@ -29,37 +29,51 @@
   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   SOFTWARE.
-  */
+*/
 
-/* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __APP_MAIN_H
-#define __APP_MAIN_H
+/* Includes -----------------------------------------------------------*/
+#include "simpleFSM.h"
 
-/* Includes ------------------------------------------------------------------*/
-#include "stdint.h"
-#include "stdlib.h"
-#include "main.h"
-#include "stm32wbxx_hal.h"
+/* Defines ------------------------------------------------------------*/
 
-/* Exported types ------------------------------------------------------------*/
-typedef enum
+
+/* Private function prototypes ----------------------------------------*/
+
+
+/* Global variables ---------------------------------------------------*/
+static const state_table_t* states;
+
+/* Public functions ----------------------------------------------------*/
+void simple_fsm_init(fsm_t* pfsm, uint8_t u8sizeBytes, const state_table_t* pstates)
 {
-  First = 0,
-  Second,
-  Third
-} eState_t;
-/* Exported constants --------------------------------------------------------*/
+  pfsm->u8statesCount = u8sizeBytes;
+  states = pstates;
+}
 
-/* Private define ------------------------------------------------------------*/
+void simple_fsm_idle(void)
+{
 
-/* Exported macro ------------------------------------------------------------*/
+}
 
-/* Exported functions --------------------------------------------------------*/
-void app_main_init(void);
-void app_main_idle(void);
+void simple_fsm_run(fsm_t* pfsm)
+{
+  pfsm->u8currentState = pfsm->u8nextState;
 
-#endif /* __APP_MAIN_H */
+  if(states[pfsm->u8currentState].entryFunction != NULL)
+  {
+      states[pfsm->u8currentState].entryFunction();
+  }
 
-/******************* (C) COPYRIGHT *****END OF FILE****/
+  states[pfsm->u8currentState].actionFunction((int*)&pfsm->u8nextState);
 
+  if(states[pfsm->u8currentState].exitFunction != NULL)
+  {
+     states[pfsm->u8currentState].exitFunction();
+  }
 
+  pfsm->u8currentState = pfsm->u8nextState;
+}
+
+/* Private functions ---------------------------------------------------*/
+
+/******************* (C) COPYRIGHT 2022*****END OF FILE****/

@@ -1,3 +1,12 @@
-app_main.c:60:6:app_main_init	8	static
-app_main.c:91:6:app_main_idle	8	static
-app_main.c:112:13:test	8	static
+app_main.c:83:6:app_main_init	8	static
+app_main.c:118:6:app_main_idle	8	static
+app_main.c:143:6:entry_state_handler	4	static
+app_main.c:148:6:action_state_handler	16	static
+app_main.c:159:6:exit_state_handler	4	static
+app_main.c:164:6:entry_state_handler2	4	static
+app_main.c:169:6:action_state_handler2	16	static
+app_main.c:181:6:exit_state_handler2	4	static
+app_main.c:186:6:entry_state_handler3	4	static
+app_main.c:191:6:action_state_handler3	16	static
+app_main.c:197:6:exit_state_handler3	4	static
+app_main.c:212:13:test	8	static

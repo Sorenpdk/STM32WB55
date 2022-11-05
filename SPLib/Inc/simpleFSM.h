@@ -1,10 +1,10 @@
 /**
   ******************************************************************************
-  * @file    app_main.h
+  * @file    simpleFSM.h
   * @author  Søren Pørksen
   * @version V1.0.0
   * @date    08/10-2022 (DD/MM-YYYY)
-  * @brief   Header for app_main.c file.
+  * @brief   Header for simpleFSM.c file.
     TODO: fill this module handles....
   *******************************************************************************
   * @copy
@@ -29,25 +29,35 @@
   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   SOFTWARE.
-  */
+ */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __APP_MAIN_H
-#define __APP_MAIN_H
+#ifndef __SIMPLE_FSM_H
+#define __SIMPLE_FSM_H
 
 /* Includes ------------------------------------------------------------------*/
-#include "stdint.h"
-#include "stdlib.h"
-#include "main.h"
-#include "stm32wbxx_hal.h"
+#include "common.h"
 
 /* Exported types ------------------------------------------------------------*/
-typedef enum
+typedef void(*pfnEntry)(void);
+typedef void(*pfnAction)(int* pi16NextState);
+typedef void(*pfnExit)(void);
+
+typedef struct
 {
-  First = 0,
-  Second,
-  Third
-} eState_t;
+  uint8_t State;
+  pfnEntry entryFunction;
+  pfnAction actionFunction;
+  pfnExit exitFunction;
+} state_table_t;
+
+typedef struct
+{
+   uint8_t u8nextState;
+   uint8_t u8currentState;
+   state_table_t* statesTable;
+   uint8_t u8statesCount;
+} fsm_t;
 /* Exported constants --------------------------------------------------------*/
 
 /* Private define ------------------------------------------------------------*/
@@ -55,11 +65,13 @@ typedef enum
 /* Exported macro ------------------------------------------------------------*/
 
 /* Exported functions --------------------------------------------------------*/
-void app_main_init(void);
-void app_main_idle(void);
+void simple_fsm_init(fsm_t* pfsm, uint8_t u8sizeBytes, const state_table_t* pstates);
+void simple_fsm_idle(void);
+void simple_fsm_run(fsm_t* pfsm);
 
-#endif /* __APP_MAIN_H */
+#endif /* __SIMPLE_FSM_H */
 
 /******************* (C) COPYRIGHT *****END OF FILE****/
+
 
 

@@ -36,20 +36,44 @@
 
 #include "simpleTimer.h"
 #include "ringBuffer.h"
+#include "simpleFSM.h"
 /* Defines ------------------------------------------------------------*/
 #define BUFFER_SIZE 16
 
 /* Private function prototypes ----------------------------------------*/
 static void test(void);
+
+void entry_state_handler();
+void action_state_handler(int* newState);
+void exit_state_handler();
+
+void entry_state_handler2();
+void action_state_handler2(int* newState);
+void exit_state_handler2();
+
+void entry_state_handler3();
+void action_state_handler3(int* newState);
+void exit_state_handler3();
+
 /* Global variables ---------------------------------------------------*/
 static sTimer_t ledONTimer;
 static sTimer_t ledOFFTimer;
-static uint16_t ONTime = 500;
-static uint16_t OFFTime = 100;
+static uint16_t ONTime = 1000;
+static uint16_t OFFTime = 1000;
 
 static sRingbuf_t ringbuf;
 static uint8_t au8buffer[BUFFER_SIZE];
 static UART_HandleTypeDef huart1;
+
+static fsm_t myfsm;
+
+static const state_table_t states[] =
+{
+  {First, entry_state_handler, action_state_handler, exit_state_handler},
+  {Second, entry_state_handler2, action_state_handler2, exit_state_handler2},
+  {Third, entry_state_handler3, action_state_handler3, exit_state_handler3},
+};
+
 /*---------------------------------------------------------------------*/
 /**
   * @brief
@@ -62,6 +86,9 @@ void app_main_init(void)
   simpleTimer_reset_milliSeconds(&ledONTimer, ONTime);
   simpleTimer_reset_milliSeconds(&ledOFFTimer, OFFTime);
   ringBuffer_init(&ringbuf, au8buffer, BUFFER_SIZE);
+  simple_fsm_init(&myfsm, sizeof(states)/sizeof(states[0]), states);
+
+
   huart1.Instance = USART1;
   huart1.Init.BaudRate = 115200;
   huart1.Init.WordLength = UART_WORDLENGTH_8B;
@@ -88,23 +115,98 @@ void app_main_init(void)
 static uint8_t u8idx;
 static uint8_t u8dex;
 static char acmsg[] = "Hello from STM32";
+
 void app_main_idle(void)
 {
-
   simpleTimer_idle();
+  simple_fsm_run(&myfsm);
 
+
+
+  /*
    if(simpleTimer_timeout(&ledONTimer))
    {
      u8idx++;
      HAL_UART_Transmit(&huart1,(uint8_t*)acmsg, sizeof(acmsg), HAL_MAX_DELAY);
      simpleTimer_reset_milliSeconds(&ledONTimer, ONTime);
    }
+   */
 
 }
 
 
 
 /* Public functions ----------------------------------------------------*/
+
+
+
+
+void entry_state_handler()
+{
+
+}
+
+void action_state_handler(int* newState)
+{
+  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, GPIO_PIN_RESET);
+  if(simpleTimer_timeout(&ledONTimer))
+  {
+    simpleTimer_reset_milliSeconds(&ledOFFTimer, OFFTime);
+    *newState = Second;
+  }
+}
+
+void exit_state_handler()
+{
+
+}
+
+void entry_state_handler2()
+{
+
+}
+
+void action_state_handler2(int* newState)
+{
+  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, GPIO_PIN_SET);
+  if(simpleTimer_timeout(&ledOFFTimer))
+   {
+     simpleTimer_reset_milliSeconds(&ledONTimer, ONTime);
+     *newState = Third;
+   }
+
+}
+
+void exit_state_handler2()
+{
+
+}
+
+void entry_state_handler3()
+{
+
+}
+
+void action_state_handler3(int* newState)
+{
+
+    *newState = First;
+}
+
+void exit_state_handler3()
+{
+
+}
+
+
+
+
+
+
+
+
 
 
 /* Private functions ---------------------------------------------------*/
