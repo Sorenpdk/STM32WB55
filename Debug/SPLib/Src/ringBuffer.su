@@ -1,0 +1,5 @@
+ringBuffer.c:46:6:ringBuffer_init	24	static
+ringBuffer.c:56:8:ringBuffer_put	24	static,ignoring_inline_asm
+ringBuffer.c:74:9:ringBuffer_get	24	static,ignoring_inline_asm
+ringBuffer.c:93:9:ringBuffer_peek	16	static
+ringBuffer.c:99:22:isRingBuffer_full	24	static

@@ -44,7 +44,7 @@
 #include "SP_SPI.h"
 #include "SP_Uart.h"
 #include "SP_IntFlash.h"
-
+#include "accelerometer_lis2dw12.h"
 /* Defines ------------------------------------------------------------*/
 #define BUFFER_SIZE 16
 
@@ -150,7 +150,7 @@ void app_main_init(void)
   simpleTimer_reset_milliSeconds(&testTimer, ONTime);
   uwTickPrio = TICK_INT_PRIORITY;
 
-
+  acc_init();
 }
 
 uint8_t ascendingValues[100] = {
@@ -190,9 +190,9 @@ static unsigned char acmsg[] = "Hello from STM";
 void app_main_idle(void)
 {
   u8idx++;
-  drv_SPI_idle();
-//  drv_IntFlash_Write();
-  HAL_Delay(5000);
+  acc_getTemperature();
+
+  HAL_Delay(200);
 }
 
 /* CYCCNT increments on each cycle of the processor clock */

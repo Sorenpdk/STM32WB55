@@ -1,0 +1,10 @@
+core_cm4.h:1688:22:__NVIC_EnableIRQ	16	static
+core_cm4.h:1816:22:__NVIC_SetPriority	16	static
+SP_Uart.c:56:6:drv_uart_init	32	static
+SP_Uart.c:115:6:drv_uart_trasnmit	24	static
+SP_Uart.c:130:13:set_UART_stopBits	16	static
+SP_Uart.c:147:13:set_UART_wordLength	16	static
+SP_Uart.c:163:13:set_UART_baudRate	24	static
+SP_Uart.c:176:13:set_UART_parity	16	static
+SP_Uart.c:206:17:calculateBaudRateValue	24	static
+SP_Uart.c:222:6:drv_uart_IRQHandler	8	static

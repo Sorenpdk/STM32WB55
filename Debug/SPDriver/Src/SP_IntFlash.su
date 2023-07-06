@@ -1,0 +1,4 @@
+SP_IntFlash.c:57:8:drv_IntFlash_Write	24	static
+SP_IntFlash.c:103:6:drv_IntFlash_Unlock	4	static
+SP_IntFlash.c:110:8:drv_IntFlash_checkOperationsAllowed	16	static
+SP_IntFlash.c:124:8:drv_IntFlash_checkBusy	16	static

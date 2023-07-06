@@ -226,7 +226,7 @@ void USART1_IRQHandler(void)
 
 void SPI1_IRQHandler(void)
 {
-  drv_SPI_IRQHandler();
+  //drv_SPI_IRQHandler();
 }
 
 /* USER CODE END 1 */

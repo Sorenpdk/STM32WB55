@@ -1,10 +1,10 @@
 /**
   ******************************************************************************
-  * @file    SP_SPI.h
+  * @file    accelerometer_lis2dw12.h
   * @author  Søren Pørksen
   * @version V1.0.0
   * @date    26/06-2023 (DD/MM-YYYY)
-  * @brief   Header for SP_SPI.c file.
+  * @brief   Header for accelerometer_lis2dw12.c file.
     TODO: fill this module handles....
   *******************************************************************************
   * @copy
@@ -32,30 +32,24 @@
   */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __SPSPI_H
-#define __SPSPI_H
+#ifndef __ACC_LIS2DW12_H
+#define __ACC_LIS2DW12_H
 
-/* Private define ------------------------------------------------------------*/
 
 /* Includes ------------------------------------------------------------------*/
 #include "common.h"
-#include "stm32wb55xx.h"
-#include "stm32wbxx_it.h"
-#include "ringBuffer.h"
-/* Exported types ------------------------------------------------------------*/
 
+/* Private define ------------------------------------------------------------*/
+/* Exported types ------------------------------------------------------------*/
+void acc_init(void);
+uint16_t acc_getTemperature(void);
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 
 /* Exported functions --------------------------------------------------------*/
-void drv_SPI_init(void);
-void drv_SPI_idle(void);
-void drv_SPI_transmit_nBytes(uint8_t* pu8Data, uint16_t u16dataLength);
-uint8_t drv_SPI_transmit_singleByte(uint8_t u8Data);
-sRingbuf_t* drv_SPI_getRxDataPtr(void);
-void drv_SPI_IRQHandler(void);
 
-#endif /* __SPSPI_H */
+
+#endif /* __ACC_LIS2DW12_H */
 
 /******************* (C) COPYRIGHT *****END OF FILE****/
 

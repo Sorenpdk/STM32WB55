@@ -1,0 +1,7 @@
+simpleTimer.c:32:6:simpleTimer_idle	8	static
+simpleTimer.c:38:6:simpleTimer_reset_seconds	16	static
+simpleTimer.c:49:6:simpleTimer_reset_milliSeconds	16	static
+simpleTimer.c:61:8:simpleTimer_timeout	24	static
+simpleTimer.c:90:6:simpleTimer_IRQHandler	16	static
+simpleTimer.c:104:10:simpleTimer_getSeconds	4	static
+simpleTimer.c:109:10:simpleTimer_getMilliseconds	4	static

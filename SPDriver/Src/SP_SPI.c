@@ -34,7 +34,8 @@
 /* Includes -----------------------------------------------------------*/
 #include "SP_SPI.h"
 #include "SP_GPIO.h"
-#include "ringBuffer.h"
+
+#include "stm32wbxx_hal.h"
 /* Defines ------------------------------------------------------------*/
 #define SPI_CS_PIN   4
 #define TX_BUFFER_SIZE 56
@@ -42,7 +43,7 @@
 
 /* Private function prototypes ----------------------------------------*/
 static void drv_SPI_assertCS(bool_t bValue);
-
+static void drv_SPI_transmit(uint8_t u8data);
 /* Global variables ---------------------------------------------------*/
 static sRingbuf_t spiTxBuffer;
 static sRingbuf_t spiRxBuffer;
@@ -114,10 +115,10 @@ void drv_SPI_init(void)
   SPI1->CR1 |= SPI_CR1_MSTR; /* Master */
 
 
-  SPI1->CR1 &= ~SPI_CR1_CPOL; /* CK to 1 when idle */
-  SPI1->CR1 &= ~SPI_CR1_CPHA; /* Clock phase 1: The second clock transition is the first data capture edge */
+  SPI1->CR1 |= SPI_CR1_CPOL; /* CK to 1 when idle */
+  SPI1->CR1 |= SPI_CR1_CPHA; /* Clock phase 1: The second clock transition is the first data capture edge */
 
-  SPI1->CR1 &= ~SPI_CR1_BR_2;
+  SPI1->CR1 |= SPI_CR1_BR_2;
   SPI1->CR1 |= SPI_CR1_BR_1;
   SPI1->CR1 |= SPI_CR1_BR_0;
 
@@ -139,39 +140,54 @@ interface cannot work in a multimaster environment. */
   SPI1->CR1 |= SPI_CR1_SPE; /* SPI enable */
  SPI1->CR2 |= SPI_CR2_RXNEIE;
  SPI1->CR2 |= SPI_CR2_TXEIE;
-  NVIC_SetPriority(SPI1_IRQn, 0);			// Set Priority to 1
-  NVIC_EnableIRQ(SPI1_IRQn);				// Enable interrupt of USART1 peripheral
+  //NVIC_SetPriority(SPI1_IRQn, 0);			// Set Priority to 1
+  //NVIC_EnableIRQ(SPI1_IRQn);				// Enable interrupt of USART1 peripheral
 }
+
 
 void drv_SPI_idle(void)
 {
 
 }
 
+uint8_t drv_SPI_transmit_singleByte(uint8_t u8Data)
+{
+  drv_SPI_assertCS(false);
+
+  drv_SPI_transmit(u8Data);
+
+
+  uint8_t receivedData = (uint8_t)((SPI1->DR & 0xFF00) >> 8);
+
+  drv_SPI_assertCS(true);
+
+  return receivedData;
+}
 
 void drv_SPI_transmit_nBytes(uint8_t* pu8Data, uint16_t u16dataLength)
 {
+  drv_SPI_assertCS(false);
+
   for(uint16_t u16idx = 0; u16idx < u16dataLength; ++u16idx)
   {
     drv_SPI_transmit(pu8Data[u16idx]);
   }
+
+  drv_SPI_assertCS(true);
 }
 
 
-void drv_SPI_transmit(uint8_t u8data)
+static void drv_SPI_transmit(uint8_t u8data)
 {
-  drv_SPI_assertCS(false);
 
-  while (!(SPI1->SR & SPI_SR_TXE)){} // Wait for the transmit buffer to be empty
+  while (!(SPI1->SR & SPI_SR_TXE)) {} // Wait for the transmit buffer to be empty
   SPI1->DR = u8data;
 
-  while(!(SPI1->SR & SPI_SR_RXNE));
-  ringBuffer_put(&spiRxBuffer, (uint8_t)SPI1->DR);
-
+    // Enable transmit buffer empty interrupt
+  // SPI1->CR2 |= SPI_CR2_TXEIE;
 
   while (SPI1->SR & SPI_SR_BSY){} // Wait for the SPI peripheral to finish the transmission
 
-  drv_SPI_assertCS(true);
 }
 
 
@@ -180,6 +196,7 @@ static void drv_SPI_assertCS(bool_t bValue)
   drv_GPIO_set_pin(GPIO_PORTA, bValue, SPI_CS_PIN);
 }
 
+/*
 void drv_SPI_IRQHandler(void)
 {
   if(SPI1->SR & SPI_SR_TXE)
@@ -187,17 +204,35 @@ void drv_SPI_IRQHandler(void)
     SPI1->CR2 &= ~(SPI_CR2_TXEIE); // Disable transmit buffer empty interrupt
   }
 
-  if(SPI1->SR & SPI_SR_RXNE)
+  if (SPI1->SR & SPI_SR_RXNE)
   {
-      if((uint8_t)SPI1->DR != 0xFFFF)
-      {
-	  ringBuffer_put(&spiRxBuffer, (uint8_t)SPI1->DR);
-      }
+    uint8_t receivedData = (uint8_t)((SPI1->DR & 0xFF00) >> 8);
+
+    if(receivedData != 0xFF)
+    {
+	ringBuffer_put(&spiRxBuffer, receivedData);
+    }
+  }
+  if(SPI1->SR & SPI_SR_OVR)
+  {
+    SPI1->SR &= ~SPI_SR_OVR;
   }
 }
-
-
-
+*/
+sRingbuf_t* drv_SPI_getRxDataPtr(void)
+{
+  return &spiRxBuffer;
+}
+/*
+ *
+    fn read_reg(&mut self, register: Register) -> Result<u8, Error<SpiError, PinError>> {
+        self.chip_select()?;
+        let request = 0b1000_0000 | register.addr(); // set the read bit
+        let result = self.write_then_read(request);
+        self.chip_deselect()?;
+        result
+    }
+ */
 
 
 /* Private functions ---------------------------------------------------*/

@@ -1,0 +1,6 @@
+bitManipulator.c:43:9:bit_convert_u32_to_u8	32	static
+bitManipulator.c:69:9:bit_convert_u16_to_u8	24	static
+bitManipulator.c:91:9:bit_insert_u8_in_u16	32	static
+bitManipulator.c:113:9:bit_insert_u8_in_u32	32	static
+bitManipulator.c:140:10:bit_swap_endianess_u16	16	static
+bitManipulator.c:145:10:bit_swap_endianess_u32	16	static

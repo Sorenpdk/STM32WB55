@@ -1,0 +1,6 @@
+bitSet.c:46:8:bitSet_isFlagPositionSet	16	static
+bitSet.c:51:6:bitSet_setBit	24	static
+bitSet.c:59:6:bitSet_clearBit	24	static
+bitSet.c:67:8:bitSet_anyBitset	24	static
+bitSet.c:79:9:bitSet_numberOfBitsSet	24	static
+bitSet.c:90:8:bitSet_findFirstBit	24	static
