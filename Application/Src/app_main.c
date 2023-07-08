@@ -144,13 +144,14 @@ void app_main_init(void)
 
 
   drv_uart_init(&UART1_Init);
-
   drv_SPI_init();
 
   simpleTimer_reset_milliSeconds(&testTimer, ONTime);
   uwTickPrio = TICK_INT_PRIORITY;
 
+
   acc_init();
+
 }
 
 uint8_t ascendingValues[100] = {
@@ -189,10 +190,12 @@ static unsigned char acmsg[] = "Hello from STM";
 
 void app_main_idle(void)
 {
-  u8idx++;
-  acc_getTemperature();
 
-  HAL_Delay(200);
+
+  acc_getWhoAmI();
+  acc_init();
+  acc_getTemperature();
+  HAL_Delay(400);
 }
 
 /* CYCCNT increments on each cycle of the processor clock */

@@ -1,3 +1,6 @@
-accelerometer_lis2dw12.c:96:6:acc_init	8	static
-accelerometer_lis2dw12.c:103:10:acc_getTemperature	16	static
-accelerometer_lis2dw12.c:118:7:convertTemperature	40	static
+accelerometer_lis2dw12.c:101:6:acc_init	8	static
+accelerometer_lis2dw12.c:107:6:acc_getWhoAmI	16	static
+accelerometer_lis2dw12.c:120:13:configure	16	static
+accelerometer_lis2dw12.c:173:10:acc_getTemperature	16	static
+accelerometer_lis2dw12.c:212:15:convertTwosCompToInt	24	static
+accelerometer_lis2dw12.c:238:7:convertTemperature	40	static

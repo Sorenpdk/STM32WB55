@@ -35,6 +35,7 @@
 #include "accelerometer_lis2dw12.h"
 #include "SP_SPI.h"
 #include "ringBuffer.h"
+#include "string.h"
 /* Defines ------------------------------------------------------------*/
 #define READ_CMD_BIT_MASK		0x80
 #define OUT_TEMPERATURE_L_RO  		0x0D /* Temperature output register in 12-bit resolution */
@@ -56,10 +57,14 @@
 #define OUT_Z_L_RO 			0x2C
 #define OUT_Z_H_RO 			0x2D
 
+#define STATUS_DUP_RO 			0x37
+#define FIFO_CTRL			0x2E
+
+#define TAP_SRC_RO			0x39
 
 
 float convertTemperature(uint16_t twosComplementValue);
-
+static int8_t convertTwosCompToInt(uint8_t u8twoscomp);
 
 /*
 FIFO_CTRL R/W 2E 00101110 00000000 FIFO control register
@@ -91,29 +96,144 @@ Registers marked as Reserved must not be changed. Writing to those registers may
 the device.
 The content of the registers that are loaded at boot should not be changed. They contain the factory calibration
 values. Their content is automatically restored when the device is powered up. */
-static sRingbuf_t* bufferptr;
-static float temperature;
+static void configure(void);
+
 void acc_init(void)
 {
-  bufferptr = drv_SPI_getRxDataPtr();
+  configure();
 }
-/* Private function prototypes ----------------------------------------*/
-static uint16_t u16rawTemp;
 
+static uint8_t u8whoami;
+void acc_getWhoAmI(void)
+{
+  uint8_t u8cmd[1] = {(READ_CMD_BIT_MASK | WHO_AM_I_RO)};
+  drv_SPI_assertCS(false);
+
+  drv_SPI_transmit_nBytes(u8cmd, sizeof(u8cmd));
+  drv_SPI_receive_nBytes(&u8whoami, 1);
+
+
+  drv_SPI_assertCS(true);
+}
+
+
+static void configure(void)
+{
+  uint8_t u8cmd[2] = {CTRL1_RW, 0x9A};
+
+  drv_SPI_assertCS(0);
+
+  drv_SPI_transmit_nBytes(u8cmd, sizeof(u8cmd));
+
+  drv_SPI_assertCS(1);
+
+
+
+
+   u8cmd[0] = CTRL2_RW;
+   u8cmd[1] = 0x16;
+
+   drv_SPI_assertCS(0);
+
+   drv_SPI_transmit_nBytes(u8cmd, sizeof(u8cmd));
+
+   drv_SPI_assertCS(1);
+
+
+
+   u8cmd[0] = 0x2E;
+   u8cmd[1] = 0;
+
+   drv_SPI_assertCS(0);
+
+   drv_SPI_transmit_nBytes(u8cmd, sizeof(u8cmd));
+
+   drv_SPI_assertCS(1);
+
+
+   u8cmd[0] = CTRL3_RW;
+     u8cmd[1] = 0x03;
+
+     drv_SPI_assertCS(0);
+
+     drv_SPI_transmit_nBytes(u8cmd, sizeof(u8cmd));
+
+     drv_SPI_assertCS(1);
+}
+
+
+
+
+
+#define WAKE_UP_THS 0x34
+
+/* Private function prototypes ----------------------------------------*/
+static uint8_t u8tempHigh;
+static uint8_t u8tempLow;
 uint16_t acc_getTemperature(void)
 {
-    uint8_t u8cmd = (READ_CMD_BIT_MASK | OUT_TEMPERATURE_H_RO);
-    u16rawTemp = ((uint16_t)drv_SPI_transmit_singleByte(u8cmd) << 8);
+  uint8_t u8cmd[2] = {0};
+  u8cmd[0] = CTRL3_RW;
+   u8cmd[1] = 0x03;
+
+   drv_SPI_assertCS(0);
+
+   drv_SPI_transmit_nBytes(u8cmd, sizeof(u8cmd));
+
+   drv_SPI_assertCS(1);
 
 
-    u8cmd = (READ_CMD_BIT_MASK | OUT_TEMPERATURE_L_RO);
-    u16rawTemp += drv_SPI_transmit_singleByte(u8cmd);
 
-    temperature = convertTemperature(u16rawTemp);
-    // Store the temperature value in a suitable variable or use it as needed
+   u8cmd[0] = (READ_CMD_BIT_MASK | OUT_X_L_RO);
+   drv_SPI_assertCS(0);
 
-    return u16rawTemp;
+   drv_SPI_transmit_nBytes(u8cmd, 1);
+   drv_SPI_receive_nBytes(&u8tempHigh, 1);
+
+   drv_SPI_assertCS(1);
+
+      u8cmd[0] = (READ_CMD_BIT_MASK | OUT_X_H_RO);
+
+      drv_SPI_assertCS(0);
+
+      drv_SPI_transmit_nBytes(u8cmd, 1);
+      drv_SPI_receive_nBytes(&u8tempHigh, 1);
+
+      drv_SPI_assertCS(1);
+
+    return 1;
 }
+
+
+
+
+uint8_t x = 0x00;
+
+static int8_t convertTwosCompToInt(uint8_t u8twoscomp)
+{
+  int8_t y = (u8twoscomp ^ 0xFF) + 1; // Invert bits and add 1
+  if (u8twoscomp & (1 << 7)) // Check if 8th bit is set (meaning signed)
+  {
+    return (~(y) + 1); // invert back from unsigned to signed.
+  }
+
+  return u8twoscomp; // if no sign bit then fine...
+}
+
+/*
+There is no "128" in a signed byte. The range is
+
+0 to 127 : 128 values
+-1 to -128 : 128 value
+*/
+
+
+
+
+
+
+
+
 
 float convertTemperature(uint16_t temperatureOutput)
 {

@@ -51,10 +51,13 @@
 void drv_SPI_init(void);
 void drv_SPI_idle(void);
 void drv_SPI_transmit_nBytes(uint8_t* pu8Data, uint16_t u16dataLength);
-uint8_t drv_SPI_transmit_singleByte(uint8_t u8Data);
-sRingbuf_t* drv_SPI_getRxDataPtr(void);
-void drv_SPI_IRQHandler(void);
+void drv_SPI_receive_nBytes(uint8_t* pu8Data, uint16_t u16dataLength);
+void drv_SPI_assertCS(bool_t bValue);
 
+uint8_t drv_SPI_transmit_singleByte(uint8_t u8Data);
+
+void drv_SPI_IRQHandler(void);
+uint8_t* drv_SPI_getRxData(void);
 #endif /* __SPSPI_H */
 
 /******************* (C) COPYRIGHT *****END OF FILE****/

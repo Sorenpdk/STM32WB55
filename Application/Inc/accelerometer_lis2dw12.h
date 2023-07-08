@@ -43,6 +43,7 @@
 /* Exported types ------------------------------------------------------------*/
 void acc_init(void);
 uint16_t acc_getTemperature(void);
+void acc_getWhoAmI(void);
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 

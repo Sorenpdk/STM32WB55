@@ -34,21 +34,15 @@
 /* Includes -----------------------------------------------------------*/
 #include "SP_SPI.h"
 #include "SP_GPIO.h"
-
+#include "string.h"
 #include "stm32wbxx_hal.h"
 /* Defines ------------------------------------------------------------*/
 #define SPI_CS_PIN   4
-#define TX_BUFFER_SIZE 56
-#define RX_BUFFER_SIZE 56
 
 /* Private function prototypes ----------------------------------------*/
-static void drv_SPI_assertCS(bool_t bValue);
-static void drv_SPI_transmit(uint8_t u8data);
+
+
 /* Global variables ---------------------------------------------------*/
-static sRingbuf_t spiTxBuffer;
-static sRingbuf_t spiRxBuffer;
-static uint8_t au8TxBuf[TX_BUFFER_SIZE];
-static uint8_t au8RxBuf[RX_BUFFER_SIZE];
 
 /* Public functions ----------------------------------------------------*/
 
@@ -60,9 +54,6 @@ void drv_SPI_init(void)
   PA11 SPI1_ MISO
   PA12 SPI1_ MOSI
   PA5 SPI1_ SCK*/
-  ringBuffer_init(&spiTxBuffer, au8TxBuf, TX_BUFFER_SIZE);
-  ringBuffer_init(&spiRxBuffer, au8RxBuf, RX_BUFFER_SIZE);
-
   GPIO_init_t SPI_GPIO_CS_PA4 = { .gpioType = GPIO_TYPE_PUSH_PULL,
 				   .gpioMode = GPIO_MODER_OUTPUT,
 				   .gpioSpeed = GPIO_SPEED_HIGH,
@@ -140,9 +131,9 @@ interface cannot work in a multimaster environment. */
   SPI1->CR1 |= SPI_CR1_SPE; /* SPI enable */
  SPI1->CR2 |= SPI_CR2_RXNEIE;
  SPI1->CR2 |= SPI_CR2_TXEIE;
-  //NVIC_SetPriority(SPI1_IRQn, 0);			// Set Priority to 1
-  //NVIC_EnableIRQ(SPI1_IRQn);				// Enable interrupt of USART1 peripheral
+
 }
+
 
 
 void drv_SPI_idle(void)
@@ -150,90 +141,45 @@ void drv_SPI_idle(void)
 
 }
 
-uint8_t drv_SPI_transmit_singleByte(uint8_t u8Data)
-{
-  drv_SPI_assertCS(false);
-
-  drv_SPI_transmit(u8Data);
-
-
-  uint8_t receivedData = (uint8_t)((SPI1->DR & 0xFF00) >> 8);
-
-  drv_SPI_assertCS(true);
-
-  return receivedData;
-}
-
 void drv_SPI_transmit_nBytes(uint8_t* pu8Data, uint16_t u16dataLength)
 {
-  drv_SPI_assertCS(false);
-
   for(uint16_t u16idx = 0; u16idx < u16dataLength; ++u16idx)
   {
-    drv_SPI_transmit(pu8Data[u16idx]);
+    while (!(SPI1->SR & SPI_SR_TXE)) {} // Wait for the transmit buffer to be empty
+    *((__IO uint8_t *)&SPI1->DR) = pu8Data[u16idx];
   }
-
-  drv_SPI_assertCS(true);
-}
-
-
-static void drv_SPI_transmit(uint8_t u8data)
-{
 
   while (!(SPI1->SR & SPI_SR_TXE)) {} // Wait for the transmit buffer to be empty
-  SPI1->DR = u8data;
-
-    // Enable transmit buffer empty interrupt
-  // SPI1->CR2 |= SPI_CR2_TXEIE;
-
   while (SPI1->SR & SPI_SR_BSY){} // Wait for the SPI peripheral to finish the transmission
 
-}
-
-
-static void drv_SPI_assertCS(bool_t bValue)
-{
-  drv_GPIO_set_pin(GPIO_PORTA, bValue, SPI_CS_PIN);
-}
-
-/*
-void drv_SPI_IRQHandler(void)
-{
-  if(SPI1->SR & SPI_SR_TXE)
-  {
-    SPI1->CR2 &= ~(SPI_CR2_TXEIE); // Disable transmit buffer empty interrupt
-  }
-
-  if (SPI1->SR & SPI_SR_RXNE)
-  {
-    uint8_t receivedData = (uint8_t)((SPI1->DR & 0xFF00) >> 8);
-
-    if(receivedData != 0xFF)
-    {
-	ringBuffer_put(&spiRxBuffer, receivedData);
-    }
-  }
+  /* Clear overrun flag if set */
   if(SPI1->SR & SPI_SR_OVR)
   {
-    SPI1->SR &= ~SPI_SR_OVR;
+    uint8_t u8void = SPI1->DR;
+    (void)u8void;
+    u8void = SPI1->SR;
   }
-}
-*/
-sRingbuf_t* drv_SPI_getRxDataPtr(void)
-{
-  return &spiRxBuffer;
-}
-/*
- *
-    fn read_reg(&mut self, register: Register) -> Result<u8, Error<SpiError, PinError>> {
-        self.chip_select()?;
-        let request = 0b1000_0000 | register.addr(); // set the read bit
-        let result = self.write_then_read(request);
-        self.chip_deselect()?;
-        result
-    }
- */
 
+
+}
+
+void drv_SPI_receive_nBytes(uint8_t* pu8Data, uint16_t u16dataLength)
+{
+   for(uint16_t u16idx = 0; u16idx < u16dataLength; ++u16idx)
+   {
+      while (SPI1->SR & SPI_SR_BSY){} // Wait for the SPI peripheral to finish the transmission
+      *((__IO uint8_t *)&SPI1->DR) = 0; /* Transmit a dummy byte */
+      while (!(SPI1->SR & SPI_SR_RXNE)) {}
+      pu8Data[u16idx] = (SPI1->DR & 0xff00) >> 8;
+   }
+}
+
+
+void drv_SPI_assertCS(bool_t bValue)
+{
+  while (SPI1->SR & SPI_SR_BSY){} // Wait for the SPI peripheral to finish the transmission
+  drv_GPIO_set_pin(GPIO_PORTA, bValue, SPI_CS_PIN);
+}
 
 /* Private functions ---------------------------------------------------*/
 
