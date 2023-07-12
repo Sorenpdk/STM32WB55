@@ -101,29 +101,27 @@ void drv_SPI_init(void)
 
   SPI1->CR1 |= SPI_CR1_SSM; /* Software slave select */
 
-  SPI1->CR1 |= SPI_CR1_BR_0; /* 001: fPCLK DIV 4 */
-
   SPI1->CR1 |= SPI_CR1_MSTR; /* Master */
-
 
   SPI1->CR1 |= SPI_CR1_CPOL; /* CK to 1 when idle */
   SPI1->CR1 |= SPI_CR1_CPHA; /* Clock phase 1: The second clock transition is the first data capture edge */
 
-  SPI1->CR1 |= SPI_CR1_BR_2;
-  SPI1->CR1 |= SPI_CR1_BR_1;
-  SPI1->CR1 |= SPI_CR1_BR_0;
+  // Clear the existing BR bits
+  SPI1->CR1 &= ~SPI_CR1_BR;
 
-  // this fucks up SPI1->CR1 |= SPI_CR1_LSBFIRST;
+  // Set the desired baud rate divisor (e.g., divide by 64)
+  SPI1->CR1 |= SPI_CR1_BR_2 | SPI_CR1_BR_0;
+
  /* 000: fPCLK/2 */
   /* 100: fPCLK/32 */
- // SPI1->CR2 |= SPI_CR2_FRXTH;   /* 1/4 (8 bit) */
+  /* This bit is used to set the threshold of the RXFIFO that triggers an RXNE event */
+  //SPI1->CR2 |= SPI_CR2_FRXTH;   /* 1/4 (8 bit) */
 
-  SPI1->CR2 |= (SPI_CR2_DS_0 | SPI_CR2_DS_1 | SPI_CR2_DS_2 ); // | SPI_CR2_DS_3);
-  SPI1->CR2 &= ~(SPI_CR2_DS_3); /* 0111: 8-bit */
+  //SPI1->CR2 |= (SPI_CR2_DS_0 | SPI_CR2_DS_1 | SPI_CR2_DS_2 ); // | SPI_CR2_DS_3);
+  //SPI1->CR2 &= ~(SPI_CR2_DS_3); /* 0111: 8-bit */
  /* If software attempts to write one of the “Not used” values, they are forced to the value “0111”
 (8-bit) */
 
-  ///* Tx buffer empty interrupt enable */
 
   SPI1->CR2 |= SPI_CR2_SSOE; /* 1: SS output is enabled in master mode and when the SPI interface is enabled. The SPI
 interface cannot work in a multimaster environment. */
@@ -131,53 +129,102 @@ interface cannot work in a multimaster environment. */
   SPI1->CR1 |= SPI_CR1_SPE; /* SPI enable */
  SPI1->CR2 |= SPI_CR2_RXNEIE;
  SPI1->CR2 |= SPI_CR2_TXEIE;
-
 }
 
 
+
+void drv_SPI_transmitReceive(uint8_t* pu8TxData, uint8_t* pu8RxDataRx, uint16_t u16TxdataLength, uint16_t u16RxdataLength)
+{
+  uint16_t u16currentTxLength = 0;
+  uint16_t u16currentRxLength = 0;
+
+  /* Clear RXNE flag */
+  (void)SPI1->DR;
+
+  while (u16currentTxLength < u16TxdataLength)
+  {
+    while (!(SPI1->SR & SPI_SR_TXE)); // Wait for the transmit buffer to be empty
+    *((__IO uint8_t *)&SPI1->DR) = pu8TxData[u16currentTxLength];
+
+   while (!(SPI1->SR & SPI_SR_TXE)){}; // Wait for the transmit buffer to be empty
+
+    *((__IO uint8_t *)&SPI1->DR) = 0x00; // Dummy write after the first command
+
+   u16currentTxLength++;
+
+    /* Wait until RXNE flag is set */
+   if(u16RxdataLength > 0)
+   {
+    while (!(SPI1->SR & SPI_SR_RXNE)){};
+    pu8RxDataRx[u16currentRxLength] = (uint8_t)(SPI1->DR >> 8) ;
+    u16currentRxLength++;
+   }
+  }
+
+  // Add a delay here to ensure previous data has been fully received
+  for (volatile int i = 0; i < 10; i++);
+
+  while (u16currentRxLength < u16RxdataLength)
+  {
+    *((__IO uint8_t *)&SPI1->DR) = 0x00;
+    while (!(SPI1->SR & SPI_SR_RXNE));
+    pu8RxDataRx[u16currentRxLength] = *((__IO uint8_t *)&SPI1->DR);
+
+    u16currentRxLength++;
+  }
+
+  /* Wait until SPI is not busy */
+  while ((SPI1->SR & SPI_SR_BSY) != 0) {};
+
+}
 
 void drv_SPI_idle(void)
 {
 
 }
 
+
 void drv_SPI_transmit_nBytes(uint8_t* pu8Data, uint16_t u16dataLength)
 {
   for(uint16_t u16idx = 0; u16idx < u16dataLength; ++u16idx)
   {
-    while (!(SPI1->SR & SPI_SR_TXE)) {} // Wait for the transmit buffer to be empty
+    while (!(SPI1->SR & SPI_SR_TXE)) {}  //Wait for the transmit buffer to be empty
     *((__IO uint8_t *)&SPI1->DR) = pu8Data[u16idx];
   }
 
-  while (!(SPI1->SR & SPI_SR_TXE)) {} // Wait for the transmit buffer to be empty
-  while (SPI1->SR & SPI_SR_BSY){} // Wait for the SPI peripheral to finish the transmission
+  while (!(SPI1->SR & SPI_SR_TXE)) {} //Wait for the transmit buffer to be empty
+  while (SPI1->SR & SPI_SR_BSY){}  //Wait for the SPI peripheral to finish the transmission
 
-  /* Clear overrun flag if set */
   if(SPI1->SR & SPI_SR_OVR)
   {
     uint8_t u8void = SPI1->DR;
     (void)u8void;
     u8void = SPI1->SR;
   }
-
-
 }
+
+
+
 
 void drv_SPI_receive_nBytes(uint8_t* pu8Data, uint16_t u16dataLength)
 {
    for(uint16_t u16idx = 0; u16idx < u16dataLength; ++u16idx)
    {
-      while (SPI1->SR & SPI_SR_BSY){} // Wait for the SPI peripheral to finish the transmission
-      *((__IO uint8_t *)&SPI1->DR) = 0; /* Transmit a dummy byte */
+      while (SPI1->SR & SPI_SR_BSY){}
+      *((__IO uint8_t *)&SPI1->DR) = 0x00;
       while (!(SPI1->SR & SPI_SR_RXNE)) {}
-      pu8Data[u16idx] = (SPI1->DR & 0xff00) >> 8;
+      if(!(SPI1->SR & SPI_SR_OVR))
+      {
+	pu8Data[u16idx] = *((__IO uint8_t *)&SPI1->DR);
+      }
    }
+
 }
 
 
 void drv_SPI_assertCS(bool_t bValue)
 {
-  while (SPI1->SR & SPI_SR_BSY){} // Wait for the SPI peripheral to finish the transmission
+  while (SPI1->SR & SPI_SR_BSY){ }; // Wait for the SPI peripheral to finish the transmission
   drv_GPIO_set_pin(GPIO_PORTA, bValue, SPI_CS_PIN);
 }
 

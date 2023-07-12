@@ -63,8 +63,31 @@
 #define TAP_SRC_RO			0x39
 
 
-float convertTemperature(uint16_t twosComplementValue);
-static int8_t convertTwosCompToInt(uint8_t u8twoscomp);
+
+
+
+#define CTRL1_ODR_POWER_DOWN 		(0x00 << 4)
+#define CTRL1_ODR_12_5_1_6_HZ 		(0x01 << 4)
+#define CTRL1_ODR_12_5_HZ 		(0x02 << 4)
+#define CTRL1_ODR_25_HZ 		(0x03 << 4)
+#define CTRL1_ODR_50_HZ 		(0x04 << 4)
+#define CTRL1_ODR_100_HZ 		(0x05 << 4)
+#define CTRL1_ODR_200_HZ 		(0x06 << 4)
+#define CTRL1_ODR_400_200_HZ 		(0x07 << 4)
+#define CTRL1_ODR_800_200_HZ 		(0x08 << 4)
+#define CTRL1_ODR_1600_200_HZ 		(0x09 << 4)
+
+#define CTRL1_MODE_LOW_POWER 		(0x00 << 2)
+#define CTRL1_MODE_HIGH_PERFORMANCE 	(0x01 << 2)
+#define CTRL1_MODE_SINGLE_CONVERSION 	(0x02 << 2)
+
+#define CTRL1_LP_MODE_1 		(0x00 << 0)
+#define CTRL1_LP_MODE_2 		(0x01 << 0)
+#define CTRL1_LP_MODE_3 		(0x02 << 0)
+#define CTRL1_LP_MODE_4 		(0x03 << 0)
+
+
+
 
 /*
 FIFO_CTRL R/W 2E 00101110 00000000 FIFO control register
@@ -97,24 +120,56 @@ the device.
 The content of the registers that are loaded at boot should not be changed. They contain the factory calibration
 values. Their content is automatically restored when the device is powered up. */
 static void configure(void);
-
+static void lis2dw12_configure_ctrl_1(void);
+static void lis2dw12_configure_ctrl_2(void);
+static uint8_t get_temperature_MSB(void);
+static uint8_t get_temperature_LSB(void);
+static uint8_t get_z_axis_MSB(void);
+static uint8_t get_z_axis_LSB(void);
+static int16_t convertTwosCompToInt(uint16_t u16twoscomp);
 void acc_init(void)
 {
   configure();
+  lis2dw12_configure_ctrl_1();
+
+  uint8_t u8cmd3[2] = {0};
+  u8cmd3[0] = CTRL3_RW;
+  u8cmd3[1] = 0x03;
+
+  drv_SPI_assertCS(0);
+
+  drv_SPI_transmit_nBytes(u8cmd3,2);
+  drv_SPI_assertCS(1);
 }
 
-static uint8_t u8whoami;
-void acc_getWhoAmI(void)
+
+
+static void lis2dw12_configure_ctrl_1(void)
 {
-  uint8_t u8cmd[1] = {(READ_CMD_BIT_MASK | WHO_AM_I_RO)};
-  drv_SPI_assertCS(false);
-
+  uint8_t u8registerValue = (CTRL1_ODR_1600_200_HZ | CTRL1_MODE_SINGLE_CONVERSION | CTRL1_LP_MODE_1);
+  uint8_t u8cmd[2] = {CTRL1_RW, u8registerValue};
+  drv_SPI_assertCS(FALSE);
   drv_SPI_transmit_nBytes(u8cmd, sizeof(u8cmd));
-  drv_SPI_receive_nBytes(&u8whoami, 1);
-
-
-  drv_SPI_assertCS(true);
+  drv_SPI_assertCS(TRUE);
 }
+
+
+
+static void lis2dw12_configure_ctrl_2(void)
+{
+  uint8_t u8registerValue = (CTRL1_ODR_1600_200_HZ | CTRL1_MODE_SINGLE_CONVERSION | CTRL1_LP_MODE_1);
+  uint8_t u8cmd[2] = {CTRL2_RW, u8registerValue};
+  drv_SPI_assertCS(FALSE);
+  drv_SPI_transmit_nBytes(u8cmd, sizeof(u8cmd));
+  drv_SPI_assertCS(TRUE);
+}
+
+
+
+
+
+
+
 
 
 static void configure(void)
@@ -122,134 +177,183 @@ static void configure(void)
   uint8_t u8cmd[2] = {CTRL1_RW, 0x9A};
 
   drv_SPI_assertCS(0);
-
   drv_SPI_transmit_nBytes(u8cmd, sizeof(u8cmd));
-
   drv_SPI_assertCS(1);
-
-
-
 
    u8cmd[0] = CTRL2_RW;
    u8cmd[1] = 0x16;
 
    drv_SPI_assertCS(0);
-
    drv_SPI_transmit_nBytes(u8cmd, sizeof(u8cmd));
-
    drv_SPI_assertCS(1);
-
-
 
    u8cmd[0] = 0x2E;
    u8cmd[1] = 0;
 
    drv_SPI_assertCS(0);
-
    drv_SPI_transmit_nBytes(u8cmd, sizeof(u8cmd));
-
    drv_SPI_assertCS(1);
 
-
    u8cmd[0] = CTRL3_RW;
-     u8cmd[1] = 0x03;
+    u8cmd[1] = 0x03;
 
-     drv_SPI_assertCS(0);
+    drv_SPI_assertCS(0);
+    drv_SPI_transmit_nBytes(u8cmd, sizeof(u8cmd));
+    drv_SPI_assertCS(1);
 
-     drv_SPI_transmit_nBytes(u8cmd, sizeof(u8cmd));
-
-     drv_SPI_assertCS(1);
 }
-
-
-
 
 
 #define WAKE_UP_THS 0x34
 
 /* Private function prototypes ----------------------------------------*/
-static uint8_t u8tempHigh;
-static uint8_t u8tempLow;
-uint16_t acc_getTemperature(void)
+
+#define LSB_PER_DEG_C   			16
+#define LIS2DW12_TEMPERATURE_OFFSET_DEG_C  	25
+
+
+
+float lis2dw12_get_z_sample_mg(void)
 {
-  uint8_t u8cmd[2] = {0};
-  u8cmd[0] = CTRL3_RW;
-   u8cmd[1] = 0x03;
+  float f32converted_Mg = 0.0f;
 
-   drv_SPI_assertCS(0);
+  int16_t i16RawFromTwosComplement = convertTwosCompToInt(lis2dw12_get_z_sample_raw());
 
-   drv_SPI_transmit_nBytes(u8cmd, sizeof(u8cmd));
+  i16RawFromTwosComplement >>= 2;
 
-   drv_SPI_assertCS(1);
+  f32converted_Mg = (float)i16RawFromTwosComplement * 0.244f;
+
+  return f32converted_Mg;
+}
 
 
+uint16_t lis2dw12_get_z_sample_raw(void)
+{
+  uint16_t u16ZAxisCombined = (get_z_axis_MSB() << 8) | get_z_axis_LSB();
 
-   u8cmd[0] = (READ_CMD_BIT_MASK | OUT_X_L_RO);
-   drv_SPI_assertCS(0);
+  return u16ZAxisCombined;
+}
 
-   drv_SPI_transmit_nBytes(u8cmd, 1);
-   drv_SPI_receive_nBytes(&u8tempHigh, 1);
 
-   drv_SPI_assertCS(1);
+static uint8_t get_z_axis_LSB(void)
+{
+   uint8_t u8ZAxisLSBRaw = 0;
+   uint8_t au8cmd[1];
+   au8cmd[0] = (READ_CMD_BIT_MASK | OUT_Z_L_RO);
 
-      u8cmd[0] = (READ_CMD_BIT_MASK | OUT_X_H_RO);
+   drv_SPI_assertCS(FALSE);
+   drv_SPI_transmitReceive(au8cmd, &u8ZAxisLSBRaw, sizeof(au8cmd), sizeof(u8ZAxisLSBRaw));
+   drv_SPI_assertCS(TRUE);
 
-      drv_SPI_assertCS(0);
+   return u8ZAxisLSBRaw;
+}
 
-      drv_SPI_transmit_nBytes(u8cmd, 1);
-      drv_SPI_receive_nBytes(&u8tempHigh, 1);
+static uint8_t get_z_axis_MSB(void)
+{
+   uint8_t u8ZAxisMSBRaw = 0;
+   uint8_t au8cmd[1];
+   au8cmd[0] = (READ_CMD_BIT_MASK | OUT_Z_H_RO);
 
-      drv_SPI_assertCS(1);
+   drv_SPI_assertCS(FALSE);
+   drv_SPI_transmitReceive(au8cmd, &u8ZAxisMSBRaw, sizeof(au8cmd), sizeof(u8ZAxisMSBRaw));
+   drv_SPI_assertCS(TRUE);
 
-    return 1;
+   return u8ZAxisMSBRaw;
 }
 
 
 
-
-uint8_t x = 0x00;
-
-static int8_t convertTwosCompToInt(uint8_t u8twoscomp)
+void lis2dw12_generate_single_dataConversion(void)
 {
-  int8_t y = (u8twoscomp ^ 0xFF) + 1; // Invert bits and add 1
-  if (u8twoscomp & (1 << 7)) // Check if 8th bit is set (meaning signed)
+  uint8_t au8cmd[2];
+  au8cmd[0] = CTRL3_RW;
+  au8cmd[1] = 0x01;
+
+  drv_SPI_assertCS(FALSE);
+  drv_SPI_transmit_nBytes(au8cmd, sizeof(au8cmd));
+  drv_SPI_assertCS(TRUE);
+}
+
+
+uint8_t lis2dw12_get_whoAmI(void)
+{
+   uint8_t u8WhoAmI = 0;
+   uint8_t au8cmd[1];
+   au8cmd[0] = (READ_CMD_BIT_MASK | WHO_AM_I_RO);
+
+   drv_SPI_assertCS(FALSE);
+   drv_SPI_transmitReceive(au8cmd, &u8WhoAmI, sizeof(au8cmd), sizeof(u8WhoAmI));
+   drv_SPI_assertCS(TRUE);
+
+   return u8WhoAmI;
+}
+
+
+/* >>= 4; because the data sheet says, which is fucked up and isnt explained.
+ * something something left justified etc.
+ * 			TEMP MSB						    TEMP LSB
+ * |TEMP11|TEMP10|TEMP09|TEMP08|TEMP07|TEMP06|TEMP05|TEMP04|		|TEMP3|TEMP2|TEMP1|TEMP0|0|0|0|0
+ *
+ * So with out the shift 1 LSB is 1 DEG because TEMP 0 is at bit pos 4, so we need to shift it down so 16LSB because 1 deg.
+ */
+float lis2dw12_get_temperature_sample_degC(void)
+{
+  float f32convertedTemperatureDegC = 0.0f;
+
+  int16_t i16temperatureFromTwosComplement = convertTwosCompToInt(lis2dw12_get_temperature_sample_raw());
+
+  i16temperatureFromTwosComplement >>= 4;
+
+  f32convertedTemperatureDegC = (((float)i16temperatureFromTwosComplement / LSB_PER_DEG_C ) + LIS2DW12_TEMPERATURE_OFFSET_DEG_C);
+
+  return f32convertedTemperatureDegC;
+}
+
+
+uint16_t lis2dw12_get_temperature_sample_raw(void)
+{
+  uint16_t u16tempCombined = (get_temperature_MSB() << 8) | get_temperature_LSB();
+
+  return u16tempCombined;
+}
+
+
+static uint8_t get_temperature_MSB(void)
+{
+  uint8_t u8MSBTemp = 0;
+  uint8_t au8cmd[1];
+  au8cmd[0] = (READ_CMD_BIT_MASK | OUT_TEMPERATURE_H_RO);
+
+  drv_SPI_assertCS(FALSE);
+  drv_SPI_transmitReceive(au8cmd, &u8MSBTemp, sizeof(au8cmd), sizeof(u8MSBTemp));
+  drv_SPI_assertCS(TRUE);
+
+  return u8MSBTemp;
+}
+
+static uint8_t get_temperature_LSB(void)
+{
+  uint8_t u8LSBTemp = 0;
+  uint8_t au8cmd[1];
+  au8cmd[0] = (READ_CMD_BIT_MASK | OUT_TEMPERATURE_L_RO);
+
+  drv_SPI_assertCS(FALSE);
+  drv_SPI_transmitReceive(au8cmd, &u8LSBTemp, sizeof(au8cmd), sizeof(u8LSBTemp));
+  drv_SPI_assertCS(TRUE);
+
+  return u8LSBTemp;
+}
+
+
+static int16_t convertTwosCompToInt(uint16_t u16twoscomp)
+{
+  int16_t y = (u16twoscomp ^ 0xFFFF) + 1; // Invert bits and add 1
+  if (u16twoscomp & (1 << 14)) // Check if 14th bit is set (meaning signed)
   {
     return (~(y) + 1); // invert back from unsigned to signed.
   }
 
-  return u8twoscomp; // if no sign bit then fine...
-}
-
-/*
-There is no "128" in a signed byte. The range is
-
-0 to 127 : 128 values
--1 to -128 : 128 value
-*/
-
-
-
-
-
-
-
-
-
-float convertTemperature(uint16_t temperatureOutput)
-{
-    uint8_t lsb = (temperatureOutput & 0xFF);  // Extract the least significant byte
-    uint8_t msb = (temperatureOutput >> 8) & 0xFF;  // Extract the most significant byte
-
-    float baselineTemperature = 25.0f;  // Baseline temperature for 0 LSB
-    float sensitivity = 16.0f;  // Sensitivity: 16 LSB/°C
-
-    // Combine the bytes into the signed value
-    int16_t combinedValue = (int16_t)((msb << 8) | lsb);
-
-    // Calculate the temperature
-    float temperature = baselineTemperature + (combinedValue / sensitivity);
-
-    return temperature;
+  return u16twoscomp; // if no sign bit then fine...
 }
 
 /* Global variables ---------------------------------------------------*/

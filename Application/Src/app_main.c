@@ -187,15 +187,15 @@ static uint32_t u32previousUsTime;
 static uint32_t u32nowUsTime;
 
 static unsigned char acmsg[] = "Hello from STM";
-
+static float temp;
+static float Z_mg;
 void app_main_idle(void)
 {
-
-
-  acc_getWhoAmI();
-  acc_init();
-  acc_getTemperature();
-  HAL_Delay(400);
+  Z_mg = lis2dw12_get_z_sample_mg();
+  lis2dw12_get_whoAmI();
+  temp = lis2dw12_get_temperature_sample_degC();
+  lis2dw12_generate_single_dataConversion();
+  HAL_Delay(100);
 }
 
 /* CYCCNT increments on each cycle of the processor clock */

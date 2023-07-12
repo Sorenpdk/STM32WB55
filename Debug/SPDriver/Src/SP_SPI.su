@@ -1,5 +1,6 @@
 SP_SPI.c:49:6:drv_SPI_init	40	static
-SP_SPI.c:139:6:drv_SPI_idle	4	static
-SP_SPI.c:144:6:drv_SPI_transmit_nBytes	24	static
-SP_SPI.c:166:6:drv_SPI_receive_nBytes	24	static
-SP_SPI.c:178:6:drv_SPI_assertCS	16	static
+SP_SPI.c:136:6:drv_SPI_transmitReceive	32	static
+SP_SPI.c:181:6:drv_SPI_idle	4	static
+SP_SPI.c:187:6:drv_SPI_transmit_nBytes	24	static
+SP_SPI.c:209:6:drv_SPI_receive_nBytes	24	static
+SP_SPI.c:225:6:drv_SPI_assertCS	16	static

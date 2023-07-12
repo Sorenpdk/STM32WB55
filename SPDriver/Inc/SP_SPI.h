@@ -50,6 +50,7 @@
 /* Exported functions --------------------------------------------------------*/
 void drv_SPI_init(void);
 void drv_SPI_idle(void);
+void drv_SPI_transmitReceive(uint8_t* pu8TxData, uint8_t* pu8RxDataRx, uint16_t u16TxdataLength, uint16_t u16RxdataLength);
 void drv_SPI_transmit_nBytes(uint8_t* pu8Data, uint16_t u16dataLength);
 void drv_SPI_receive_nBytes(uint8_t* pu8Data, uint16_t u16dataLength);
 void drv_SPI_assertCS(bool_t bValue);

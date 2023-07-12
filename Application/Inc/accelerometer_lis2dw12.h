@@ -42,8 +42,13 @@
 /* Private define ------------------------------------------------------------*/
 /* Exported types ------------------------------------------------------------*/
 void acc_init(void);
-uint16_t acc_getTemperature(void);
-void acc_getWhoAmI(void);
+
+float lis2dw12_get_z_sample_mg(void);
+uint16_t lis2dw12_get_z_sample_raw(void);
+void lis2dw12_generate_single_dataConversion(void);
+uint8_t lis2dw12_get_whoAmI(void);
+uint16_t lis2dw12_get_temperature_sample_raw(void);
+float lis2dw12_get_temperature_sample_degC(void);
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 
