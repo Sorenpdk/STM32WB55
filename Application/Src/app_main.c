@@ -45,10 +45,13 @@
 #include "SP_Uart.h"
 #include "SP_IntFlash.h"
 #include "accelerometer_lis2dw12.h"
+#include "SP_Timer.h"
+
 /* Defines ------------------------------------------------------------*/
 #define BUFFER_SIZE 16
 
 /* Private function prototypes ----------------------------------------*/
+#if false
 static void test(void);
 static void bitset_Test(void);
 
@@ -65,7 +68,9 @@ void action_state_handler3(int* newState);
 void exit_state_handler3();
 
 static inline uint32_t DWT_us(void);
+#endif
 /* Global variables ---------------------------------------------------*/
+#if false
 static sTimer_t ledONTimer;
 static sTimer_t ledOFFTimer;
 static sTimer_t testTimer;
@@ -84,7 +89,7 @@ static const state_table_t states[] =
   {Third, entry_state_handler3, action_state_handler3, exit_state_handler3},
 };
 
-
+#endif
 uint32_t DWT_Delay_Init(void)
 {
     /* Disable TRC */
@@ -128,6 +133,9 @@ uint32_t DWT_Delay_Init(void)
 
 void app_main_init(void)
 {
+  drv_timer_init();
+
+#if false
   simpleTimer_reset_milliSeconds(&ledONTimer, ONTime);
   ringBuffer_init(&ringbuf, au8buffer, BUFFER_SIZE);
   simple_fsm_init(&myfsm, sizeof(states)/sizeof(states[0]), states);
@@ -151,9 +159,10 @@ void app_main_init(void)
 
 
   acc_init();
+#endif
 
 }
-
+#if false
 uint8_t ascendingValues[100] = {
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
     10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
@@ -166,7 +175,7 @@ uint8_t ascendingValues[100] = {
     80, 81, 82, 83, 84, 85, 86, 87, 88, 89,
     90, 91, 92, 93, 94, 95, 96, 97, 98, 99
 };
-
+#endif
 
 /*----------------------------------------------------------------------*/
 /**
@@ -176,6 +185,7 @@ uint8_t ascendingValues[100] = {
   * @param  none
   * @retval none
   */
+#if false
 static uint8_t u8idx;
 static uint8_t u8dex;
 
@@ -189,13 +199,14 @@ static uint32_t u32nowUsTime;
 static unsigned char acmsg[] = "Hello from STM";
 static float temp;
 static float Z_mg;
+#endif
 void app_main_idle(void)
 {
-  Z_mg = lis2dw12_get_z_sample_mg();
-  lis2dw12_get_whoAmI();
-  temp = lis2dw12_get_temperature_sample_degC();
-  lis2dw12_generate_single_dataConversion();
-  HAL_Delay(100);
+
+
+
+
+
 }
 
 /* CYCCNT increments on each cycle of the processor clock */
@@ -207,8 +218,14 @@ static inline uint32_t DWT_us(void)
 /* Public functions ----------------------------------------------------*/
 
 
-
-
+/* accelerometer
+ * Z_mg = lis2dw12_get_z_sample_mg();
+  lis2dw12_get_whoAmI();
+  temp = lis2dw12_get_temperature_sample_degC();
+  lis2dw12_generate_single_dataConversion();
+  HAL_Delay(100);
+ */
+#if false
 void entry_state_handler()
 {
 
@@ -269,10 +286,11 @@ void exit_state_handler3()
 {
 
 }
-
+#endif
 
 
 /* Private functions ---------------------------------------------------*/
+#if false
 static void test(void)
 {
   simpleTimer_idle();
@@ -323,4 +341,5 @@ static void bitset_Test(void)
 
   bitset_y = bitSet_findFirstBit(&bitset);
 }
+#endif
 /******************* (C) COPYRIGHT 2022*****END OF FILE****/

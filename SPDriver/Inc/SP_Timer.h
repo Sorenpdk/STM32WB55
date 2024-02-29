@@ -1,16 +1,16 @@
 /**
   ******************************************************************************
-  * @file    SP_GPIO.h
+  * @file    SP_Timer.h
   * @author  Søren Pørksen
   * @version V1.0.0
-  * @date    21/06-2023 (DD/MM-YYYY)
-  * @brief   Header for SP_GPIO.c file.
+  * @date    27/02-2024 (DD/MM-YYYY)
+  * @brief   Header for SP_Timer.c file.
     TODO: fill this module handles....
   *******************************************************************************
   * @copy
   MIT License
 
-  Copyright (c) 2023 Søren Pørksen
+  Copyright (c) 2024 Søren Pørksen
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
@@ -32,8 +32,8 @@
   */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __SPGPIO_H
-#define __SPGPIO_H
+#ifndef __SP_TIMER_H
+#define __SP_TIMER_H
 
 /* Private define ------------------------------------------------------------*/
 
@@ -41,70 +41,16 @@
 #include "common.h"
 #include "stm32wb55xx.h"
 #include "stm32wbxx_it.h"
-
+#include "stm32wbxx_hal.h"
 /* Exported types ------------------------------------------------------------*/
-typedef enum
-{
-  GPIO_PORTA = 0,
-  GPIO_PORTB,
-  GPIO_PORTC
-
-} eGPIO_Ports_t;
-
-
-typedef enum
-{
-  GPIO_MODE_INPUTT = 0,
-  GPIO_MODER_OUTPUT,
-  GPIO_MODER_ALTERNATE,
-  GPIO_MODER_ANALOG
-
-} eGPIO_Mode_t;
-
-typedef enum
-{
-  GPIO_TYPE_PUSH_PULL = 0,
-  GPIO_TYPE_OPEN_DRAIN
-
-} eGPIO_Type_t;
-
-typedef enum
-{
-  GPIO_SPEED_LOW = 0,
-  GPIO_SPEED_MEDIUM,
-  GPIO_SPEED_FAST,
-  GPIO_SPEED_HIGH
-
-} eGPIO_Speed_t;
-
-typedef enum
-{
-  GPIO_NO_PULL = 0,
-  GPIO_PULLUPP,
-  GPIO_PULL_DOWN
-
-} eGPIO_PuPd_t;
-
-
-typedef struct
-{
-  eGPIO_Ports_t gpioPort;
-  eGPIO_Mode_t gpioMode;
-  eGPIO_Type_t gpioType;
-  eGPIO_Speed_t gpioSpeed;
-  eGPIO_PuPd_t gpioPuPd;
-  uint8_t u8pinNumber;
-
-} GPIO_init_t;
-
 
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 
 /* Exported functions --------------------------------------------------------*/
-void drv_GPIO_init(GPIO_init_t* pGPIOInit);
-void drv_GPIO_set_pin(eGPIO_Ports_t ePort, bool_t bState, uint8_t u8pinNumber);
+void drv_timer_init(void);
+void drv_timer_IRQHandler(TIM_HandleTypeDef *htim);
 
-#endif /* __SPGPIO_H */
+#endif /* __SP_TIMER_H */
 
 /******************* (C) COPYRIGHT *****END OF FILE****/

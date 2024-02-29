@@ -11,7 +11,8 @@ Core/Src/stm32wbxx_it.o: ../Core/Src/stm32wbxx_it.c \
  ../Core/Inc/stm32wbxx_it.h ../../STM32WB55/SPDriver/Inc/SP_SPI.h \
  ../../STM32WB55/SPLib/Inc/ringBuffer.h \
  ../../STM32WB55/SPLib/Inc/common.h \
- ../../STM32WB55/SPDriver/Inc/SP_Uart.h ../Core/Inc/main.h \
+ ../../STM32WB55/SPDriver/Inc/SP_Uart.h \
+ ../../STM32WB55/SPDriver/Inc/SP_Timer.h \
  ../Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_hal.h \
  ../Core/Inc/stm32wbxx_hal_conf.h \
  ../Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_hal_dma.h \
@@ -47,7 +48,7 @@ Core/Src/stm32wbxx_it.o: ../Core/Src/stm32wbxx_it.c \
  ../Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_hal_tim.h \
  ../Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_hal_tim_ex.h \
  ../Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_ll_system.h \
- ../../STM32WB55/Application/Inc/app_main.h \
+ ../Core/Inc/main.h ../../STM32WB55/Application/Inc/app_main.h \
  ../../STM32WB55/SPLib/Inc/simpleTimer.h
 
 ../../STM32WB55/SPDriver/Inc/SP_GPIO.h:
@@ -80,7 +81,7 @@ Core/Src/stm32wbxx_it.o: ../Core/Src/stm32wbxx_it.c \
 
 ../../STM32WB55/SPDriver/Inc/SP_Uart.h:
 
-../Core/Inc/main.h:
+../../STM32WB55/SPDriver/Inc/SP_Timer.h:
 
 ../Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_hal.h:
 
@@ -151,6 +152,8 @@ Core/Src/stm32wbxx_it.o: ../Core/Src/stm32wbxx_it.c \
 ../Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_hal_tim_ex.h:
 
 ../Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_ll_system.h:
+
+../Core/Inc/main.h:
 
 ../../STM32WB55/Application/Inc/app_main.h:
 

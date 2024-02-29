@@ -77,7 +77,7 @@ static void set_GPIO_pull(GPIO_init_t* pGPIOPull, GPIO_TypeDef* GPIOx)
   switch(pGPIOPull->gpioPuPd)
    {
      case GPIO_NO_PULL:   { GPIOx->PUPDR &= ~(0x01 << (pGPIOPull->u8pinNumber * 2)  ); } break;
-     case GPIO_PULLUP:    { GPIOx->PUPDR |=  (0x01 << (pGPIOPull->u8pinNumber * 2) ); } break;
+     case GPIO_PULLUPP:    { GPIOx->PUPDR |=  (0x01 << (pGPIOPull->u8pinNumber * 2) ); } break;
      case GPIO_PULL_DOWN: { GPIOx->PUPDR |=  (0x02 << (pGPIOPull->u8pinNumber * 2) ); } break;
      default: break;
    }
@@ -129,7 +129,7 @@ static void set_GPIO_mode(GPIO_init_t* pGPIOMode, GPIO_TypeDef* GPIOx)
 {
   switch(pGPIOMode->gpioMode)
   {
-     case GPIO_MODE_INPUT  : {  GPIOx->MODER &= ~(0x01 << ((pGPIOMode->u8pinNumber * 2))); } break;
+     case GPIO_MODE_INPUTT  : {  GPIOx->MODER &= ~(0x01 << ((pGPIOMode->u8pinNumber * 2))); } break;
      case GPIO_MODER_OUTPUT :
      {
        GPIOx->MODER &= ~(0x03 << ((pGPIOMode->u8pinNumber * 2))); /* Clear the reset value */

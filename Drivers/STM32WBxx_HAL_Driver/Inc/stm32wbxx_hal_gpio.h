@@ -115,7 +115,7 @@ typedef enum
   *           - Z  : IO Direction mode (Input, Output, Alternate or Analog)
   * @{
   */
-#define  GPIO_MODER_INPUT                        (0x00000000u)   /*!< Input Floating Mode                   */
+#define  GPIO_MODE_INPUT                        (0x00000000u)   /*!< Input Floating Mode                   */
 #define  GPIO_MODE_OUTPUT_PP                    (0x00000001u)   /*!< Output Push Pull Mode                 */
 #define  GPIO_MODE_OUTPUT_OD                    (0x00000011u)   /*!< Output Open Drain Mode                */
 #define  GPIO_MODE_AF_PP                        (0x00000002u)   /*!< Alternate Function Push Pull Mode     */
@@ -148,7 +148,7 @@ typedef enum
    * @{
    */
 #define  GPIO_NOPULL        (0x00000000u)   /*!< No Pull-up or Pull-down activation  */
-#define  GPIO_PULL_UP        (0x00000001u)   /*!< Pull-up activation                  */
+#define  GPIO_PULLUP        (0x00000001u)   /*!< Pull-up activation                  */
 #define  GPIO_PULLDOWN      (0x00000002u)   /*!< Pull-down activation                */
 /**
   * @}
@@ -216,7 +216,7 @@ typedef enum
 #define IS_GPIO_PIN(__PIN__)        ((((uint32_t)(__PIN__) & GPIO_PIN_MASK) != 0x00u) &&\
                                      (((uint32_t)(__PIN__) & ~GPIO_PIN_MASK) == 0x00u))
 
-#define IS_GPIO_MODE(__MODE__)      (((__MODE__) == GPIO_MODER_INPUT)              ||\
+#define IS_GPIO_MODE(__MODE__)      (((__MODE__) == GPIO_MODE_INPUT)              ||\
                                      ((__MODE__) == GPIO_MODE_OUTPUT_PP)          ||\
                                      ((__MODE__) == GPIO_MODE_OUTPUT_OD)          ||\
                                      ((__MODE__) == GPIO_MODE_AF_PP)              ||\
@@ -235,7 +235,7 @@ typedef enum
                                      ((__SPEED__) == GPIO_SPEED_FREQ_VERY_HIGH))
 
 #define IS_GPIO_PULL(__PULL__)      (((__PULL__) == GPIO_NOPULL)   ||\
-                                     ((__PULL__) == GPIO_PULL_UP)   || \
+                                     ((__PULL__) == GPIO_PULLUP)   || \
                                      ((__PULL__) == GPIO_PULLDOWN))
 /**
   * @}

@@ -36,13 +36,12 @@
 #include "SP_SPI.h"
 #include "ringBuffer.h"
 #include "string.h"
+
 /* Defines ------------------------------------------------------------*/
 #define READ_CMD_BIT_MASK		0x80
-#define OUT_TEMPERATURE_L_RO  		0x0D /* Temperature output register in 12-bit resolution */
-#define OUT_TEMPERATURE_H_RO  		0x0E /* Temperature output register in 12-bit resolution */
-#define WHO_AM_I_RO  			0x0F   /* Will respond with 0x44 */
-#define CTRL1_RW 			0x20
-#define CTRL2_RW 			0x21
+#define OUT_TEMPERATURE_L_RO  		0x0D
+#define OUT_TEMPERATURE_H_RO  		0x0E
+#define WHO_AM_I_RO  			0x0F  /* Will respond with 0x44 */
 #define CTRL3_RW 			0x22
 #define CTRL4_INT1_PAD_CTRL_RW  	0x23
 #define CTRL5_INT2_PAD_CTRL_RW  	0x24
@@ -65,28 +64,55 @@
 
 
 
+/* ODR [7:4] = 1001 High-Performance / Low-Power mode 1600/200 Hz
+ * MODE[3:2] = 00 Low-Power Mode (12/14-bit resolution)
+ * MODE[1:0] = 00 Low-Power Mode 1 (12-bit resolution)
+ */
+#define LIS2DW12_CTRL1_ADDRESS 		0x20
 
-#define CTRL1_ODR_POWER_DOWN 		(0x00 << 4)
-#define CTRL1_ODR_12_5_1_6_HZ 		(0x01 << 4)
-#define CTRL1_ODR_12_5_HZ 		(0x02 << 4)
-#define CTRL1_ODR_25_HZ 		(0x03 << 4)
-#define CTRL1_ODR_50_HZ 		(0x04 << 4)
-#define CTRL1_ODR_100_HZ 		(0x05 << 4)
-#define CTRL1_ODR_200_HZ 		(0x06 << 4)
-#define CTRL1_ODR_400_200_HZ 		(0x07 << 4)
-#define CTRL1_ODR_800_200_HZ 		(0x08 << 4)
-#define CTRL1_ODR_1600_200_HZ 		(0x09 << 4)
+#define LIS2DW12_CTRL1_VALUE           ( ( 0x09  << 4)   \
+				       | ( 0x00  << 2)   \
+				       | ( 0x00  << 0)   )
 
-#define CTRL1_MODE_LOW_POWER 		(0x00 << 2)
-#define CTRL1_MODE_HIGH_PERFORMANCE 	(0x01 << 2)
-#define CTRL1_MODE_SINGLE_CONVERSION 	(0x02 << 2)
+/* BOOT      	[7]: 1: enabled - enables retrieving the correct trimming parameters
+*  SOFT RESET	[6]: 0: disabled;
+*  		[5]: bit must be set to 0
+*  CS_PU_DISC   [4]: 0: pull-up connected to CS pin;
+*  BDU 		[3]: 0: continuous update;
+*  IF_ADD_INC   [2]: 0: disabled -Increment register address automatically.
+*  I2C_DISABLE  [1]: 1: I²C mode disabled
+*  SIM		[0]: SPI serial interface mode selection. Default value: 0 = 4-wire interface; */
 
-#define CTRL1_LP_MODE_1 		(0x00 << 0)
-#define CTRL1_LP_MODE_2 		(0x01 << 0)
-#define CTRL1_LP_MODE_3 		(0x02 << 0)
-#define CTRL1_LP_MODE_4 		(0x03 << 0)
+#define LIS2DW12_CTRL2_ADDRESS 		0x21
+
+#define LIS2DW12_CTRL2_VALUE           ( ( 0x01  << 7)   \
+				       | ( 0x00  << 6)   \
+				       | ( 0x00  << 5)   \
+				       | ( 0x00  << 4)   \
+				       | ( 0x00  << 3)   \
+				       | ( 0x00  << 2)   \
+				       | ( 0x01  << 1)   \
+				       | ( 0x00  << 0)   )
 
 
+/* ST	        [7:6]:  0 0 (00: Self-test disabled;
+*  PP_OD	[5]: (0: push-pull;
+*  LIR    	[4]: (0: interrupt request not latched;
+*  H_LACTIVE	[3]: Interrupt active high, low (0: active high;
+*  0   		[2]: 0: disabled -Increment register address automatically.
+*  SLP_MODE_SEL [1]: 0: enabled with external trigger on INT2;
+*  SLP_MODE_1	[0]: this bit is set to '1' logic, single data conversion on demand mode starts*/
+
+#define LIS2DW12_CTRL3_ADDRESS 		0x22
+
+#define LIS2DW12_CTRL3_VALUE           ( ( 0x00  << 7)   \
+				       | ( 0x00  << 6)   \
+				       | ( 0x00  << 5)   \
+				       | ( 0x00  << 4)   \
+				       | ( 0x00  << 3)   \
+				       | ( 0x00  << 2)   \
+				       | ( 0x00  << 1)   \
+				       | ( 0x01  << 0)   )
 
 
 /*
