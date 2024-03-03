@@ -59,7 +59,7 @@ void drv_timer_init(void)
     RCC->APB1ENR1 |= RCC_APB1ENR1_TIM2EN;
 
 
-    TIM2->PSC = 64000; // Set timer 3 prescaler
+    TIM2->PSC = 6400; // Set timer 3 prescaler
     TIM2->ARR = 0xFFFF; //Set timer 3 auto reload value
     TIM2->CR1 &= ~(3 << TIM_CR1_CMS_Pos); //selecting edge aligned PWM
     TIM2->CR1 |= TIM_CR1_ARPE; //Enable auto-reload preload
@@ -87,7 +87,7 @@ void drv_timer_init(void)
 
 /*
  * or to check
- against the UIF flag status¹⁵
+ against the UIF flag status
  */
 static volatile uint32_t u32CCR1_CNT;
 static volatile uint32_t u32CCR2_CNT;
@@ -95,26 +95,17 @@ void drv_timer_IRQHandler(TIM_HandleTypeDef *htim)
 {
   if(htim->Instance == TIM2)
   {
-     if((TIM2->SR & TIM_SR_CC1IF) && (TIM2->DIER & TIM_DIER_CC1IE))
-     {
+    if((TIM2->SR & TIM_SR_CC1IF) && (TIM2->DIER & TIM_DIER_CC1IE))
+    {
+      TIM2->SR &= ~TIM_SR_CC1IF;
+      u32CCR1_CNT++;
+    }
 
-	 TIM2->SR &= ~TIM_SR_CC1IF;
-
-	 u32CCR1_CNT++;
-
-     }
-
-     if((TIM2->SR & TIM_SR_CC2IF) && (TIM2->DIER & TIM_DIER_CC2IE))
-      {
-
-
-       TIM2->SR &= ~TIM_SR_CC2IF;
-       u32CCR2_CNT++;
-
-
-      }
-
-
+    if((TIM2->SR & TIM_SR_CC2IF) && (TIM2->DIER & TIM_DIER_CC2IE))
+    {
+      TIM2->SR &= ~TIM_SR_CC2IF;
+      u32CCR2_CNT++;
+    }
   }
 }
 

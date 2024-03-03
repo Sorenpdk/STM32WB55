@@ -60,9 +60,9 @@ typedef enum
 
 typedef enum
 {
-  UART_PARITY_NONE = 0,
-  UART_PARITY_EVEN,
-  UART_PARITY_ODD
+  UARTT_PARITY_NONE = 0,
+  UARTT_PARITY_EVEN,
+  UARTT_PARITY_ODD
 
 } eParity_t;
 

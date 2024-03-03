@@ -34,6 +34,7 @@
 /* Includes -----------------------------------------------------------*/
 #include "app_main.h"
 
+
 #include "simpleTimer.h"
 #include "ringBuffer.h"
 #include "simpleFSM.h"
@@ -46,6 +47,7 @@
 #include "SP_IntFlash.h"
 #include "accelerometer_lis2dw12.h"
 #include "SP_Timer.h"
+#include "SP_DMA.h"
 
 /* Defines ------------------------------------------------------------*/
 #define BUFFER_SIZE 16
@@ -130,10 +132,19 @@ uint32_t DWT_Delay_Init(void)
   * @retval none
   */
 
-
+uint8_t data[] = "Hello, STM32WB55!";
 void app_main_init(void)
 {
-  drv_timer_init();
+  //drv_timer_init();
+  UART_init_t UART1_Init = { .uartBaud = UART_BAUD_115200,
+ 			    .uartParity = UART_PARITY_NONE,
+ 			    .uartStopBits = UART_STOP_BITS_1,
+ 			    .uartWordLength = UART_WORD_LEGTH_8_BITS };
+
+   drv_uart_init(&UART1_Init);
+   drv_DMA_init();
+
+
 
 #if false
   simpleTimer_reset_milliSeconds(&ledONTimer, ONTime);
@@ -143,15 +154,7 @@ void app_main_init(void)
   DWT_Delay_Init();
   SystemCoreClockUpdate();
 
-  UART_init_t UART1_Init = { .uartBaud = UART_BAUD_115200,
-			    .uartParity = UART_PARITY_NONE,
-			    .uartStopBits = UART_STOP_BITS_1,
-			    .uartWordLength = UART_WORD_LEGTH_8_BITS };
 
-
-
-
-  drv_uart_init(&UART1_Init);
   drv_SPI_init();
 
   simpleTimer_reset_milliSeconds(&testTimer, ONTime);
@@ -196,17 +199,42 @@ static uint32_t u32testclock;
 static uint32_t u32previousUsTime;
 static uint32_t u32nowUsTime;
 
-static unsigned char acmsg[] = "Hello from STM";
+
 static float temp;
 static float Z_mg;
 #endif
+static unsigned char acmsg[] = "Hello from STM";
 void app_main_idle(void)
 {
+  //drv_uart_trasnmit(acmsg, sizeof(acmsg));
+ HAL_UART_Transmit_DMA(&huart1, acmsg, sizeof(acmsg));
+#if false
+  huart1.pTxBuffPtr  = acmsg;
+  huart1.TxXferSize  = sizeof(acmsg);
+  huart1.TxXferCount = sizeof(acmsg);
+
+  __HAL_DMA_DISABLE(huart1.hdmatx);
+
+  /* Configure DMA Channel data length */
+    DMA1_Channel1->CNDTR = sizeof(acmsg);
 
 
+      /* Configure DMA Channel destination address */
+    DMA1_Channel1->CPAR = (uint32_t)&huart1.Instance->TDR;
 
+      /* Configure DMA Channel source address */
+    DMA1_Channel1->CMAR = (uint32_t)huart1.pTxBuffPtr;
 
+    __HAL_DMA_DISABLE_IT(huart1.hdmatx, DMA_IT_HT);
+    __HAL_DMA_ENABLE_IT(huart1.hdmatx, (DMA_IT_TC | DMA_IT_TE));
 
+  __HAL_DMA_ENABLE(huart1.hdmatx);
+
+  /* Clear the TC flag in the ICR register */
+
+      //USART1->ISR &= ~UART_CLEAR_TCF;
+      //USART1->CR3 |= USART_CR3_DMAT;
+#endif
 }
 
 /* CYCCNT increments on each cycle of the processor clock */

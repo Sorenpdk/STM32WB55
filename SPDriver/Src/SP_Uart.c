@@ -102,10 +102,11 @@ void drv_uart_init(UART_init_t* pUARTInit)
 
   /* CR2 Bit 19 MSBFIRST: Most significant bit first */
   // Enable USART1, transmitter, and receiver
-  USART1->CR1 |= USART_CR1_TE | USART_CR1_UE | USART_CR1_RE  | USART_CR1_TCIE;
+  USART1->CR3 |= USART_CR3_DMAT;
+    USART1->CR1 |= USART_CR1_TE | USART_CR1_UE | USART_CR1_RE;
 
-  // Clear the TXE interrupt enable bit
-  USART1->CR1 &= ~(USART_CR1_TXEIE | USART_CR1_TCIE); /* Clear TXEIE and TC interrupts */
+    // Enable TXE and TC interrupts if needed
+    USART1->CR1 |= USART_CR1_TXEIE | USART_CR1_TCIE;
 
   NVIC_SetPriority(USART1_IRQn, 0);			// Set Priority to 1
   NVIC_EnableIRQ(USART1_IRQn);				// Enable interrupt of USART1 peripheral
@@ -177,14 +178,14 @@ static void set_UART_parity(UART_init_t* pUARTInit)
 {
   switch (pUARTInit->uartParity)
   {
-    case UART_PARITY_NONE: { USART1->CR1 &= ~USART_CR1_PCE; } break;
-    case UART_PARITY_EVEN:
+    case UARTT_PARITY_NONE: { USART1->CR1 &= ~USART_CR1_PCE; } break;
+    case UARTT_PARITY_EVEN:
     {
       USART1->CR1 |= USART_CR1_PCE;
       USART1->CR1 &= ~USART_CR1_PS;
     } break;
 
-    case UART_PARITY_ODD: { USART1->CR1 |= USART_CR1_PCE | USART_CR1_PS; } break;
+    case UARTT_PARITY_ODD: { USART1->CR1 |= USART_CR1_PCE | USART_CR1_PS; } break;
     default: break;
   }
 }

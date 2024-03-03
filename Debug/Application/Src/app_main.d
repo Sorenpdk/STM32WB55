@@ -40,6 +40,8 @@ Application/Src/app_main.o: ../Application/Src/app_main.c \
  ../Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_hal_rtc_ex.h \
  ../Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_hal_tim.h \
  ../Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_hal_tim_ex.h \
+ ../Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_hal_uart.h \
+ ../Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_hal_uart_ex.h \
  ../Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_ll_system.h \
  ../../STM32WB55/SPLib/Inc/simpleTimer.h \
  ../../STM32WB55/SPLib/Inc/common.h ../Drivers/CMSIS/Include/cmsis_gcc.h \
@@ -53,7 +55,8 @@ Application/Src/app_main.o: ../Application/Src/app_main.c \
  ../../STM32WB55/SPDriver/Inc/SP_Uart.h \
  ../../STM32WB55/SPDriver/Inc/SP_IntFlash.h \
  ../../STM32WB55/Application/Inc/accelerometer_lis2dw12.h \
- ../../STM32WB55/SPDriver/Inc/SP_Timer.h
+ ../../STM32WB55/SPDriver/Inc/SP_Timer.h \
+ ../../STM32WB55/SPDriver/Inc/SP_DMA.h
 
 ../../STM32WB55/Application/Inc/app_main.h:
 
@@ -139,6 +142,10 @@ Application/Src/app_main.o: ../Application/Src/app_main.c \
 
 ../Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_hal_tim_ex.h:
 
+../Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_hal_uart.h:
+
+../Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_hal_uart_ex.h:
+
 ../Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_ll_system.h:
 
 ../../STM32WB55/SPLib/Inc/simpleTimer.h:
@@ -172,3 +179,5 @@ Application/Src/app_main.o: ../Application/Src/app_main.c \
 ../../STM32WB55/Application/Inc/accelerometer_lis2dw12.h:
 
 ../../STM32WB55/SPDriver/Inc/SP_Timer.h:
+
+../../STM32WB55/SPDriver/Inc/SP_DMA.h:
